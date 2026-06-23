@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Aleyual — Costos SCRUM</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:#f4f5f7;color:#111;font-family:'Inter',system-ui,sans-serif;font-size:14px;line-height:1.5;}
+.page{max-width:1260px;margin:0 auto;padding:1.25rem 1rem 3rem;}
+.mono{font-family:'JetBrains Mono',monospace;font-weight:600;}
+
+/* HEADER */
+.top-bar{background:#111;color:#fff;padding:1.1rem 1.4rem;border-radius:8px;margin-bottom:1rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.75rem;}
+.top-bar h1{font-size:1.1rem;font-weight:700;}
+.top-bar p{font-size:.75rem;color:#888;margin-top:2px;}
+.top-badge{background:#fff;color:#111;font-size:.72rem;font-weight:700;padding:.3rem .8rem;border-radius:4px;}
+
+/* KPI ROW */
+.kpi-row{display:grid;grid-template-columns:repeat(5,1fr);gap:.6rem;margin-bottom:1rem;}
+.kpi{background:#fff;border:1px solid #e0e0e0;border-radius:6px;padding:.85rem 1rem;}
+.kpi-label{font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#888;margin-bottom:.25rem;}
+.kpi-val{font-family:'JetBrains Mono',monospace;font-size:1.1rem;font-weight:700;color:#111;}
+.kpi-sub{font-size:.66rem;color:#aaa;margin-top:2px;}
+.kpi.highlight{border-top:3px solid #111;}
+
+/* SAVING BANNER */
+.saving{background:#111;color:#fff;border-radius:6px;padding:1rem 1.4rem;margin-bottom:1rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.75rem;}
+.saving .sv-item{text-align:center;}
+.saving .sv-label{font-size:.62rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#888;margin-bottom:3px;}
+.saving .sv-val{font-family:'JetBrains Mono',monospace;font-size:1.1rem;font-weight:700;}
+.saving .sv-val.big{font-size:1.35rem;color:#fff;}
+.saving .sv-val.grey{color:#666;}
+.saving .sv-val.diff{color:#ccc;}
+.divider{width:1px;height:40px;background:#333;}
+
+/* TABS */
+.tabs{display:flex;border-bottom:2px solid #111;margin-bottom:1rem;overflow-x:auto;gap:0;}
+.tab{padding:.5rem 1rem;font-size:.77rem;font-weight:600;cursor:pointer;border:none;background:transparent;color:#888;border-bottom:2px solid transparent;margin-bottom:-2px;white-space:nowrap;}
+.tab.active{color:#111;border-bottom-color:#111;}
+.pane{display:none;}
+.pane.active{display:block;}
+
+/* TABLES */
+.tbl{width:100%;border-collapse:collapse;font-size:.8rem;}
+.tbl th{padding:.5rem .85rem;background:#111;color:#888;font-size:.62rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;text-align:left;white-space:nowrap;}
+.tbl th.r{text-align:right;}
+.tbl td{padding:.52rem .85rem;border-bottom:1px solid #f0f0f0;vertical-align:middle;}
+.tbl tr:nth-child(even) td{background:#fafafa;}
+.tbl .r{text-align:right;}
+.tbl .sub td{background:#e0e0e0;font-weight:700;border-top:2px solid #111;}
+.tbl .tot td{background:#111;color:#fff;font-weight:700;border:none;}
+.tbl .tot .mono{font-size:.95rem;}
+.card{background:#fff;border:1px solid #ddd;border-radius:6px;overflow:hidden;margin-bottom:1rem;}
+.card-hdr{padding:.65rem 1rem;border-bottom:1px solid #eee;background:#fafafa;display:flex;justify-content:space-between;align-items:center;}
+.card-hdr h2{font-size:.75rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#333;}
+.card-hdr .badge{font-family:'JetBrains Mono',monospace;font-size:.8rem;font-weight:700;background:#111;color:#fff;padding:.2rem .6rem;border-radius:3px;}
+
+/* STATUS CHIPS */
+.done{background:#111;color:#fff;font-size:.62rem;font-weight:700;padding:.15rem .45rem;border-radius:3px;}
+.prog{background:#555;color:#fff;font-size:.62rem;font-weight:700;padding:.15rem .45rem;border-radius:3px;}
+.pend{background:#e8e8e8;color:#555;font-size:.62rem;padding:.15rem .45rem;border-radius:3px;}
+
+/* HEAT MAP */
+.heat-scroll{overflow-x:auto;border:1px solid #ddd;border-radius:6px;}
+.heat-table{border-collapse:collapse;font-size:.72rem;min-width:900px;width:100%;}
+.heat-table th{padding:.4rem .5rem;background:#111;color:#888;font-size:.6rem;font-weight:700;text-align:center;border:1px solid #222;white-space:nowrap;}
+.heat-table th.rol{text-align:left;padding-left:.7rem;min-width:130px;}
+.heat-table td{padding:.4rem .35rem;border:1px solid #e8e8e8;text-align:center;font-size:.65rem;}
+.heat-table .rol-name{font-weight:600;text-align:left;padding-left:.7rem;background:#fafafa;}
+.ht-100{background:#1a1a1a;color:#fff;}
+.ht-75{background:#404040;color:#fff;}
+.ht-50{background:#808080;color:#fff;}
+.ht-low{background:#d0d0d0;color:#333;}
+.ht-none{background:#fff;color:#ccc;}
+.cost-row td{background:#111!important;color:#fff!important;font-family:'JetBrains Mono',monospace;font-size:.68rem;font-weight:600;}
+
+/* BURNDOWN */
+.burndown-wrap{background:#fff;border:1px solid #ddd;border-radius:6px;padding:.9rem 1rem;margin-bottom:1rem;}
+.burndown-wrap h3{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#333;margin-bottom:.6rem;}
+
+/* EPICS */
+.epic-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:.6rem;margin-bottom:1rem;}
+.epic-card{background:#fff;border:1px solid #ddd;border-radius:6px;padding:.85rem 1rem;border-top:3px solid #111;}
+.epic-card .ec-title{font-size:.75rem;font-weight:700;color:#111;margin-bottom:.3rem;}
+.epic-card .ec-sp{font-family:'JetBrains Mono',monospace;font-size:1rem;font-weight:700;margin-bottom:.15rem;}
+.epic-card .ec-cost{font-size:.72rem;color:#555;}
+.epic-card .ec-cps{font-size:.65rem;color:#aaa;margin-top:.2rem;}
+
+/* COMPARISON */
+.comp-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;}
+.comp-col{border:1px solid #ddd;border-radius:6px;overflow:hidden;}
+.comp-hdr{padding:.7rem 1rem;border-bottom:1px solid #eee;display:flex;justify-content:space-between;align-items:center;}
+.comp-hdr h3{font-size:.8rem;font-weight:700;}
+.comp-hdr .ctot{font-family:'JetBrains Mono',monospace;font-size:.82rem;font-weight:700;}
+.comp-row{display:grid;grid-template-columns:1fr auto;padding:.5rem 1rem;border-bottom:1px solid #f5f5f5;font-size:.78rem;align-items:center;}
+.comp-row:last-child{border-bottom:none;}
+.comp-val{font-family:'JetBrains Mono',monospace;font-size:.75rem;}
+
+/* FOOTER */
+.footer{border-top:2px solid #111;padding:.9rem 0;margin-top:1rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.5rem;}
+.footer p{font-size:.68rem;color:#666;}
+
+@media(max-width:720px){.kpi-row{grid-template-columns:1fr 1fr;}.epic-grid,.comp-grid{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+<div class="page">
+
+<div class="top-bar">
+  <div>
+    <h1>Aleyual — Control Store &nbsp;/&nbsp; Presupuesto SCRUM</h1>
+    <p>Metodología Ágil · 16 Sprints · 175 Story Points · Solo se paga al equipo cuando trabaja</p>
+  </div>
+  <span class="top-badge">Feb 2026 → Sep 2027 · 20 meses</span>
+</div>
+
+<!-- KPIs -->
+<div class="kpi-row">
+  <div class="kpi highlight">
+    <div class="kpi-label">Total Scrum</div>
+    <div class="kpi-val mono">$177.973.186</div>
+    <div class="kpi-sub">Base + Imprevistos + Ganancia</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-label">RRHH por Sprints</div>
+    <div class="kpi-val mono">$118.280.010</div>
+    <div class="kpi-sub">Solo días trabajados por sprint</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-label">Story Points</div>
+    <div class="kpi-val mono">175 SP</div>
+    <div class="kpi-sub">Sprints 7–13 y 15 con código</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-label">Costo / Story Point</div>
+    <div class="kpi-val mono">$676.457</div>
+    <div class="kpi-sub">RRHH ÷ 175 SP</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-label">Velocidad promedio</div>
+    <div class="kpi-val mono">~22 SP</div>
+    <div class="kpi-sub">Por sprint de desarrollo</div>
+  </div>
+</div>
+
+<!-- SAVING BANNER -->
+<div class="saving">
+  <div class="sv-item">
+    <div class="sv-label">Total Scrum</div>
+    <div class="sv-val big mono">$177.973.186</div>
+  </div>
+  <div class="divider"></div>
+  <div class="sv-item">
+    <div class="sv-label">Total Tradicional</div>
+    <div class="sv-val grey mono">$237.938.772</div>
+  </div>
+  <div class="divider"></div>
+  <div class="sv-item">
+    <div class="sv-label">Ahorro con Scrum</div>
+    <div class="sv-val diff mono">-$59.965.586</div>
+  </div>
+  <div class="divider"></div>
+  <div class="sv-item">
+    <div class="sv-label">% más económico</div>
+    <div class="sv-val diff mono">25.2 %</div>
+  </div>
+  <div style="font-size:.73rem;color:#666;max-width:320px;line-height:1.6;">
+    En Scrum se paga al equipo <strong style="color:#ccc;">SÓLO</strong> cuando trabaja en cada sprint. 
+    Sin costo fijo mensual por roles que no participan ese sprint.
+  </div>
+</div>
+
+<!-- TABS -->
+<div class="tabs">
+  <button class="tab active" onclick="tb('resumen',this)">Resumen de Costos</button>
+  <button class="tab" onclick="tb('sprints',this)">Costos por Sprint</button>
+  <button class="tab" onclick="tb('capacidad',this)">Capacidad Equipo</button>
+  <button class="tab" onclick="tb('epicas',this)">Costo por Épica</button>
+  <button class="tab" onclick="tb('burndown',this)">Burndown</button>
+  <button class="tab" onclick="tb('comparativa',this)">SCRUM vs Tradicional</button>
+</div>
+
+<!-- ═══ RESUMEN ═══ -->
+<div class="pane active" id="pane-resumen">
+  <div class="card">
+    <div class="card-hdr"><h2>Resumen de Costos — Metodología SCRUM</h2><span class="badge">$177.973.186</span></div>
+    <table class="tbl">
+      <thead><tr><th>#</th><th>Categoría</th><th class="r">Valor SCRUM</th><th class="r">Valor Tradicional</th><th class="r">Diferencia</th><th>Nota</th></tr></thead>
+      <tbody>
+        <tr><td style="font-weight:700;font-size:.72rem;">I</td><td style="font-weight:600;">RECURSOS HUMANOS — por Sprints</td><td class="r mono">$118.280.010</td><td class="r mono" style="color:#aaa;">$161.733.333</td><td class="r mono" style="color:#111;">-$43.453.323</td><td style="font-size:.72rem;color:#666;">Solo se paga al equipo cuando trabaja en cada sprint</td></tr>
+        <tr><td style="font-weight:700;font-size:.72rem;">II</td><td style="font-weight:600;">Tecnológicos (PC3 + SW + AWS)</td><td class="r mono">$679.733</td><td class="r mono" style="color:#aaa;">$679.733</td><td class="r mono" style="color:#aaa;">$0</td><td style="font-size:.72rem;color:#666;">Igual en ambas metodologías</td></tr>
+        <tr><td style="font-weight:700;font-size:.72rem;">III</td><td style="font-weight:600;">Gastos Administrativos</td><td class="r mono">$10.006.334</td><td class="r mono" style="color:#aaa;">$10.006.334</td><td class="r mono" style="color:#aaa;">$0</td><td style="font-size:.72rem;color:#666;">Igual en ambas metodologías</td></tr>
+        <tr class="sub"><td colspan="2">SUBTOTAL BASE</td><td class="r mono">$128.966.077</td><td class="r mono" style="color:#555;">$172.419.400</td><td class="r mono">-$43.453.323</td><td></td></tr>
+        <tr><td></td><td>Imprevistos — 20%</td><td class="r mono">$25.793.215</td><td class="r mono" style="color:#aaa;">$34.483.880</td><td class="r mono">-$8.690.664</td><td style="font-size:.72rem;color:#666;">20% sobre la base. Menor porque la base es menor.</td></tr>
+        <tr><td></td><td>Ganancia / Utilidad — 15%</td><td class="r mono">$23.213.894</td><td class="r mono" style="color:#aaa;">$31.035.492</td><td class="r mono">-$7.821.598</td><td style="font-size:.72rem;color:#666;">15% sobre (base + imprevistos).</td></tr>
+        <tr class="tot"><td colspan="2">COSTO TOTAL DEL PROYECTO — SCRUM</td><td class="r mono">$177.973.186</td><td class="r mono" style="color:#666;">$237.938.772</td><td class="r mono">-$59.965.586</td><td style="color:#888;">25.2% más económico</td></tr>
+      </tbody>
+    </table>
+    <div style="padding:.75rem 1rem;font-size:.72rem;color:#888;background:#fafafa;border-top:1px solid #eee;">
+      <strong>¿Por qué SCRUM es más económico?</strong> En la metodología tradicional se presupuesta al equipo completo durante todo el proyecto. En Scrum, cada persona factura <strong>solo los días que trabaja en su sprint</strong>. El Analista trabaja 60 días en T1, luego su costo es $0. El Tester trabaja 30 días en T7, luego $0. Esto elimina el "costo de tener el equipo en espera".
+    </div>
+  </div>
+</div>
+
+<!-- ═══ SPRINTS ═══ -->
+<div class="pane" id="pane-sprints">
+  <div class="card">
+    <div class="card-hdr"><h2>Costos por Sprint — 16 Sprints</h2><span class="badge">$118.280.010 RRHH</span></div>
+    <table class="tbl" id="sprint-table"></table>
+  </div>
+</div>
+
+<!-- ═══ CAPACIDAD ═══ -->
+<div class="pane" id="pane-capacidad">
+  <p style="font-size:.77rem;color:#555;margin-bottom:.75rem;">Cada celda muestra los días trabajados en ese sprint. Blanco = no trabaja ese sprint = <strong>$0 costo</strong>.</p>
+  <div class="heat-scroll"><table class="heat-table" id="heat-table"></table></div>
+</div>
+
+<!-- ═══ ÉPICAS ═══ -->
+<div class="pane" id="pane-epicas">
+  <div class="epic-grid" id="epic-grid"></div>
+  <div class="card">
+    <div class="card-hdr"><h2>Detalle de costos por módulo</h2></div>
+    <table class="tbl" id="epic-table"></table>
+  </div>
+</div>
+
+<!-- ═══ BURNDOWN ═══ -->
+<div class="pane" id="pane-burndown">
+  <div class="burndown-wrap">
+    <h3>Burndown de Budget — Gasto acumulado vs. valor entregado (SP)</h3>
+    <canvas id="bd-canvas" height="220" style="width:100%;"></canvas>
+    <div style="display:flex;gap:1.5rem;margin-top:.5rem;font-size:.68rem;color:#888;flex-wrap:wrap;">
+      <span>── Gasto RRHH acumulado (eje izquierdo)</span>
+      <span style="color:#111;">── Story Points acumulados (eje derecho)</span>
+      <span>● Sprints sin código (análisis/diseño) · ● Sprints con SP entregados</span>
+    </div>
+  </div>
+  <div class="burndown-wrap">
+    <h3>Costo por Sprint — Vista de barras</h3>
+    <canvas id="bar-canvas" height="200" style="width:100%;"></canvas>
+  </div>
+</div>
+
+<!-- ═══ COMPARATIVA ═══ -->
+<div class="pane" id="pane-comparativa">
+  <div class="comp-grid">
+    <div class="comp-col" style="border-top:3px solid #111;">
+      <div class="comp-hdr"><h3>SCRUM — Metodología Ágil</h3><span class="ctot mono">$177.973.186</span></div>
+      <div class="comp-row"><span>RRHH (equipo por sprints)</span><span class="comp-val mono">$118.280.010</span></div>
+      <div class="comp-row" style="background:#fafafa;"><span>Tecnológicos</span><span class="comp-val mono">$679.733</span></div>
+      <div class="comp-row"><span>Gastos administrativos</span><span class="comp-val mono">$10.006.334</span></div>
+      <div class="comp-row" style="background:#f0f0f0;font-weight:600;"><span>Subtotal base</span><span class="comp-val mono">$128.966.077</span></div>
+      <div class="comp-row"><span>Imprevistos 20%</span><span class="comp-val mono">$25.793.215</span></div>
+      <div class="comp-row" style="background:#fafafa;"><span>Ganancia 15%</span><span class="comp-val mono">$23.213.894</span></div>
+      <div class="comp-row" style="background:#111;color:#fff;font-weight:700;"><span>TOTAL</span><span class="comp-val mono">$177.973.186</span></div>
+    </div>
+    <div class="comp-col">
+      <div class="comp-hdr"><h3>Tradicional — Cascada</h3><span class="ctot mono" style="color:#888;">$237.938.772</span></div>
+      <div class="comp-row"><span>RRHH (equipo todo el proyecto)</span><span class="comp-val mono" style="color:#888;">$161.733.333</span></div>
+      <div class="comp-row" style="background:#fafafa;"><span>Tecnológicos</span><span class="comp-val mono" style="color:#888;">$679.733</span></div>
+      <div class="comp-row"><span>Gastos administrativos</span><span class="comp-val mono" style="color:#888;">$10.006.334</span></div>
+      <div class="comp-row" style="background:#f0f0f0;font-weight:600;"><span>Subtotal base</span><span class="comp-val mono" style="color:#888;">$172.419.400</span></div>
+      <div class="comp-row"><span>Imprevistos 20%</span><span class="comp-val mono" style="color:#888;">$34.483.880</span></div>
+      <div class="comp-row" style="background:#fafafa;"><span>Ganancia 15%</span><span class="comp-val mono" style="color:#888;">$31.035.492</span></div>
+      <div class="comp-row" style="background:#555;color:#fff;font-weight:700;"><span>TOTAL</span><span class="comp-val mono">$237.938.772</span></div>
+    </div>
+  </div>
+  <!-- Advantages -->
+  <div class="card">
+    <div class="card-hdr"><h2>¿Por qué usar SCRUM en Control Store?</h2></div>
+    <table class="tbl">
+      <thead><tr><th>#</th><th>Aspecto</th><th>SCRUM</th><th>Tradicional</th><th>Ventaja SCRUM</th></tr></thead>
+      <tbody>
+        <tr><td style="color:#aaa;font-size:.72rem;">1</td><td style="font-weight:600;">Costo RRHH</td><td class="mono">$118.280.010</td><td class="mono" style="color:#aaa;">$161.733.333</td><td style="font-size:.75rem;">Solo pagas días trabajados por sprint</td></tr>
+        <tr><td style="color:#aaa;font-size:.72rem;">2</td><td style="font-weight:600;">Costo total</td><td class="mono">$177.973.186</td><td class="mono" style="color:#aaa;">$237.938.772</td><td style="font-size:.75rem;"><strong>25.2% más económico</strong></td></tr>
+        <tr><td style="color:#aaa;font-size:.72rem;">3</td><td style="font-weight:600;">Entrega de valor</td><td>Incremental desde Sprint 7</td><td style="color:#aaa;">Al final del proyecto</td><td style="font-size:.75rem;">Cliente usa el sistema desde el Sprint 7</td></tr>
+        <tr><td style="color:#aaa;font-size:.72rem;">4</td><td style="font-weight:600;">Detección de errores</td><td>En cada Sprint Review</td><td style="color:#aaa;">Al final (costoso)</td><td style="font-size:.75rem;">Bugs corregidos en días, no en meses</td></tr>
+        <tr><td style="color:#aaa;font-size:.72rem;">5</td><td style="font-weight:600;">Cambios de alcance</td><td>Siguiente sprint (gratis)</td><td style="color:#aaa;">Costosos y tardíos</td><td style="font-size:.75rem;">Ajuste al Product Backlog sin rehacer</td></tr>
+        <tr><td style="color:#aaa;font-size:.72rem;">6</td><td style="font-weight:600;">Transparencia</td><td>Burndown, SP, velocity</td><td style="color:#aaa;">Reportes periódicos</td><td style="font-size:.75rem;">El cliente ve avance real en cada sprint</td></tr>
+        <tr><td style="color:#aaa;font-size:.72rem;">7</td><td style="font-weight:600;">Motivación equipo</td><td>Metas claras por sprint</td><td style="color:#aaa;">Trabajo a largo plazo</td><td style="font-size:.75rem;">Retrospectiva mejora el proceso cada sprint</td></tr>
+        <tr class="tot"><td colspan="2">AHORRO TOTAL CON SCRUM</td><td class="mono">$177.973.186</td><td class="mono" style="color:#666;">$237.938.772</td><td class="mono" style="font-size:.9rem;">-$59.965.586 (25.2%)</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<footer class="footer">
+  <p><strong>Aleyual — Control Store</strong> · Presupuesto Scrum · Autoservicio Aleyual, Bogotá</p>
+  <p>Total Scrum: <strong>$177.973.186</strong> · vs. Tradicional: $237.938.772 · Ahorro: $59.965.586</p>
+</footer>
+</div>
+
+<script>
+const SPRINT_DATA=[
+  {n:"Sprint 0",goal:"Kickoff — Análisis IEEE-830 y requisitos",dur:20,sp:0,cost:10866660,acum_c:10866660,acum_s:0,epic:"Especificación",roles:["Admin","Arquitecto","Analista"]},
+  {n:"Sprint 1",goal:"Casos de uso + plantillas extendidas",dur:15,sp:0,cost:7189995,acum_c:18056655,acum_s:0,epic:"Análisis",roles:["Admin","Arquitecto","Analista"]},
+  {n:"Sprint 2",goal:"Wireframes Figma + estimación Gantt",dur:15,sp:0,cost:5949995,acum_c:24006650,acum_s:0,epic:"Diseño",roles:["Admin","Arquitecto","Analista"]},
+  {n:"Sprint 3",goal:"Modelo BD Crows Foot + normalización 3FN",dur:15,sp:0,cost:4839991,acum_c:28846641,acum_s:0,epic:"Diseño BD",roles:["Admin","Arquitecto","Gestor BD"]},
+  {n:"Sprint 4",goal:"Diagramas UML + prototipo navegable",dur:15,sp:0,cost:4949996,acum_c:33796637,acum_s:0,epic:"Arquitectura",roles:["Arquitecto","Dev Web","Gestor BD"]},
+  {n:"Sprint 5",goal:"DDL/DML SQL + seguridad BD bcrypt",dur:15,sp:0,cost:3873330,acum_c:37669967,acum_s:0,epic:"Base de Datos",roles:["Gestor BD","Dev Web","Arquitecto"]},
+  {n:"Sprint 6",goal:"Frontend base React + configuración JWT",dur:20,sp:0,cost:7833338,acum_c:45503305,acum_s:0,epic:"Dev Frontend",roles:["Dev Web","Dev Backend","Arquitecto"]},
+  {n:"Sprint 7",goal:"US-01 Login · US-02 Roles · US-03 Usuarios",dur:15,sp:13,cost:9213337,acum_c:54716642,acum_s:13,epic:"Autenticación",roles:["Dev Web","Dev Backend","Gestor BD","Admin"]},
+  {n:"Sprint 8",goal:"US-04 Productos · US-05 Búsqueda · US-08 Cat.",dur:10,sp:16,cost:5466670,acum_c:60183312,acum_s:29,epic:"Inventario",roles:["Dev Web","Dev Backend"]},
+  {n:"Sprint 9",goal:"US-06/07 Stock · US-10 Carrito · US-15/16 Caja",dur:20,sp:23,cost:12213340,acum_c:72396652,acum_s:52,epic:"Ventas + Caja",roles:["Dev Web","Dev Backend","Admin"]},
+  {n:"Sprint 10",goal:"US-09 Historial · US-11/12/14 Ventas · US-22 Dashboard",dur:20,sp:34,cost:10933340,acum_c:83329992,acum_s:86,epic:"Ventas + Reportes",roles:["Dev Web","Dev Backend"]},
+  {n:"Sprint 11",goal:"US-18/19/20/21 Domicilios + Chatbot WhatsApp",dur:20,sp:31,cost:10173338,acum_c:93503330,acum_s:117,epic:"Domicilios",roles:["Dev Backend","Dev Web"]},
+  {n:"Sprint 12",goal:"US-23/24/25 Reportes · US-26/27 App móvil domiciliario",dur:20,sp:26,cost:9373340,acum_c:102876670,acum_s:143,epic:"App Móvil",roles:["Dev Web","Dev Backend","Admin"]},
+  {n:"Sprint 13",goal:"US-28/29/30 App móvil cliente + rastreo pedidos",dur:15,sp:26,cost:6100005,acum_c:108976675,acum_s:169,epic:"App Móvil",roles:["Dev Web","Dev Backend"]},
+  {n:"Sprint 14",goal:"Pruebas ISO 25010 + manuales técnico y usuario",dur:15,sp:0,cost:4323336,acum_c:113300011,acum_s:169,epic:"QA",roles:["Tester","Admin","Arquitecto"]},
+  {n:"Sprint 15",goal:"Despliegue servidores + entrega final",dur:15,sp:0,cost:4979999,acum_c:118280010,acum_s:169,epic:"Deploy",roles:["Admin","Arquitecto","Tester"]},
+];
+
+const HEAT_DATA={
+  "Admin":         [20,9,10,4,0,0,0,3,0,8,0,0,6,0,9,15],
+  "Arquitecto":    [20,15,15,12,15,4,6,0,0,0,0,0,0,0,7,10],
+  "Analista":      [20,15,8,0,0,0,0,0,0,0,0,0,0,0,0,0],
+  "Gestor BD":     [0,0,0,15,7,15,0,4,0,0,0,0,0,0,0,0],
+  "Dev Web":       [0,0,0,0,10,9,20,15,10,20,20,14,20,15,0,0],
+  "Dev Backend":   [0,0,0,0,0,0,10,15,10,20,20,20,14,10,0,0],
+  "Tester":        [0,0,0,0,0,0,0,0,0,0,0,0,0,0,15,7],
+};
+
+function fmt(n){return '$'+Math.round(n).toLocaleString('es-CO');}
+
+function tb(id,btn){
+  document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.pane').forEach(p=>p.classList.remove('active'));
+  btn.classList.add('active'); document.getElementById('pane-'+id).classList.add('active');
+  if(id==='burndown') setTimeout(buildCharts,60);
+}
+
+// Sprint table
+document.getElementById('sprint-table').innerHTML=`
+<thead><tr><th>#</th><th>Sprint</th><th>Objetivo</th><th class="r">Días</th><th class="r">SP</th><th class="r">Costo RRHH</th><th class="r">Acumulado</th><th class="r">SP Acum.</th><th>Estado</th></tr></thead>
+<tbody>${SPRINT_DATA.map((s,i)=>`<tr>
+  <td style="font-size:.7rem;color:#aaa;">${i}</td>
+  <td style="font-weight:700;font-size:.78rem;">${s.n}</td>
+  <td style="font-size:.78rem;">${s.goal}</td>
+  <td class="r">${s.dur}</td>
+  <td class="r" style="font-weight:${s.sp>0?700:400};color:${s.sp>0?'#111':'#bbb'};">${s.sp>0?s.sp:'—'}</td>
+  <td class="r mono">${fmt(s.cost)}</td>
+  <td class="r mono" style="color:#888;">${fmt(s.acum_c)}</td>
+  <td class="r" style="color:#888;">${s.acum_s>0?s.acum_s:'—'}</td>
+  <td>${i<=1?'<span class="done">✓ Completado</span>':(i===2?'<span class="prog">→ En progreso</span>':'<span class="pend">· Pendiente</span>')}</td>
+</tr>`).join('')}
+<tr class="tot"><td colspan="4">TOTAL — 16 Sprints</td><td class="r mono">175</td><td class="r mono">$118.280.010</td><td class="r mono">$118.280.010</td><td class="r mono">175</td><td></td></tr>
+</tbody>`;
+
+// Heat map
+const roles=Object.keys(HEAT_DATA);
+const sprintLabels=SPRINT_DATA.map(s=>s.n.replace('Sprint ','S'));
+document.getElementById('heat-table').innerHTML=`
+<thead><tr><th class="rol">ROL</th>${sprintLabels.map(l=>`<th>${l}</th>`).join('')}<th>Total</th></tr></thead>
+<tbody>${roles.map(role=>{
+  const days=HEAT_DATA[role];
+  const total=days.reduce((a,b)=>a+b,0);
+  return`<tr>
+    <td class="rol-name">${role==='Dev Backend'?'Dev Backend (×3)':role==='Analista'?'Analista (×2)':role}</td>
+    ${days.map((d,i)=>{
+      if(d===0) return`<td class="ht-none">—</td>`;
+      const dur=SPRINT_DATA[i].dur; const pct=Math.round(d/dur*100);
+      const cls=pct>=80?'ht-100':pct>=60?'ht-75':pct>=40?'ht-50':'ht-low';
+      return`<td class="${cls}">${d}d</td>`;
+    }).join('')}
+    <td style="font-weight:700;font-size:.7rem;background:#f0f0f0;">${total}d</td>
+  </tr>`;
+}).join('')}
+<tr class="cost-row"><td>COSTO SPRINT</td>${SPRINT_DATA.map(s=>`<td>${fmt(s.cost/1000000).replace('$','')+'M'}</td>`).join('')}<td>${fmt(118280010)}</td></tr>
+</tbody>`;
+
+// Epics
+const epicMap={};
+SPRINT_DATA.forEach(s=>{
+  if(!epicMap[s.epic]) epicMap[s.epic]={cost:0,sp:0,sprints:[]};
+  epicMap[s.epic].cost+=s.cost; epicMap[s.epic].sp+=s.sp;
+  epicMap[s.epic].sprints.push(s.n.replace('Sprint ','S'));
+});
+document.getElementById('epic-grid').innerHTML=Object.entries(epicMap).map(([e,d])=>`
+  <div class="epic-card">
+    <div class="ec-title">${e}</div>
+    <div class="ec-sp mono">${d.sp>0?d.sp+' SP':'0 SP'}</div>
+    <div class="ec-cost mono">${fmt(Math.round(d.cost))}</div>
+    <div class="ec-cps">${d.sp>0?'$'+Math.round(d.cost/d.sp).toLocaleString('es-CO')+' / SP':'Análisis/Diseño'}</div>
+  </div>`).join('');
+document.getElementById('epic-table').innerHTML=`
+<thead><tr><th>#</th><th>Épica</th><th>Sprints</th><th class="r">SP</th><th class="r">Costo RRHH</th><th class="r">% Total</th><th class="r">$/Story Point</th></tr></thead>
+<tbody>${Object.entries(epicMap).map(([e,d],i)=>`<tr>
+  <td style="color:#aaa;font-size:.72rem;">${i+1}</td>
+  <td style="font-weight:600;">${e}</td>
+  <td style="font-size:.7rem;color:#888;">${d.sprints.join(', ')}</td>
+  <td class="r" style="font-weight:${d.sp>0?700:400};color:${d.sp>0?'#111':'#bbb'};">${d.sp>0?d.sp:'—'}</td>
+  <td class="r mono">${fmt(Math.round(d.cost))}</td>
+  <td class="r">${(d.cost/118280010*100).toFixed(1)}%</td>
+  <td class="r mono">${d.sp>0?fmt(Math.round(d.cost/d.sp)):'N/A'}</td>
+</tr>`).join('')}
+<tr class="tot"><td colspan="3">TOTAL</td><td class="r mono">175</td><td class="r mono">$118.280.010</td><td class="r">100%</td><td class="r mono">$676.457</td></tr>
+</tbody>`;
+
+// Charts
+function buildCharts(){
+  const bd=document.getElementById('bd-canvas');
+  if(!bd) return;
+  const W=bd.offsetWidth||680; const H=220; bd.width=W; bd.height=H;
+  const ctx=bd.getContext('2d');
+  const N=SPRINT_DATA.length;
+  const PAD={l:70,r:50,t:20,b:36};
+  const CW=W-PAD.l-PAD.r; const CH=H-PAD.t-PAD.b;
+  const maxC=Math.max(...SPRINT_DATA.map(s=>s.acum_c));
+  const maxSP=175;
+  const xStep=CW/(N-1);
+  ctx.clearRect(0,0,W,H);
+  // Grid
+  ctx.strokeStyle='#f0f0f0'; ctx.lineWidth=1;
+  [0,0.25,0.5,0.75,1].forEach(p=>{
+    const y=PAD.t+CH*(1-p);
+    ctx.beginPath(); ctx.moveTo(PAD.l,y); ctx.lineTo(W-PAD.r,y); ctx.stroke();
+    ctx.fillStyle='#bbb'; ctx.font='9px Arial'; ctx.textAlign='right';
+    ctx.fillText(fmt(maxC*p/1000000).replace('$','$').replace(',000,000','M'),PAD.l-4,y+3);
+    ctx.textAlign='left'; ctx.fillStyle='#ddd';
+    ctx.fillText(Math.round(maxSP*p)+'SP',W-PAD.r+4,y+3);
+  });
+  // Sprint labels
+  SPRINT_DATA.forEach((s,i)=>{
+    const x=PAD.l+i*xStep;
+    ctx.fillStyle='#bbb'; ctx.font='8px Arial'; ctx.textAlign='center';
+    ctx.fillText(s.n.replace('Sprint ','S'),x,H-PAD.b+14);
+    ctx.strokeStyle='#f5f5f5'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(x,PAD.t); ctx.lineTo(x,H-PAD.b); ctx.stroke();
+  });
+  // Cost line
+  ctx.beginPath(); ctx.strokeStyle='#555'; ctx.lineWidth=2;
+  SPRINT_DATA.forEach((s,i)=>{const x=PAD.l+i*xStep; const y=PAD.t+CH*(1-s.acum_c/maxC); i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);});
+  ctx.stroke();
+  // SP line (right scale)
+  ctx.beginPath(); ctx.strokeStyle='#111'; ctx.lineWidth=2.5;
+  SPRINT_DATA.forEach((s,i)=>{const x=PAD.l+i*xStep; const y=PAD.t+CH*(1-s.acum_s/maxSP); i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);});
+  ctx.stroke();
+  // Dots
+  SPRINT_DATA.forEach((s,i)=>{
+    const x=PAD.l+i*xStep;
+    ctx.beginPath(); ctx.arc(x,PAD.t+CH*(1-s.acum_c/maxC),3,0,Math.PI*2); ctx.fillStyle='#888'; ctx.fill();
+    if(s.acum_s>0){ctx.beginPath(); ctx.arc(x,PAD.t+CH*(1-s.acum_s/maxSP),4,0,Math.PI*2); ctx.fillStyle='#111'; ctx.fill();}
+  });
+  // Labels
+  ctx.fillStyle='#888'; ctx.font='9px Arial'; ctx.textAlign='center';
+  ctx.fillText('Sprints (S0 a S15) →',W/2,H-2);
+
+  // Bar chart
+  const bar=document.getElementById('bar-canvas');
+  if(!bar) return;
+  const BW=bar.offsetWidth||680; const BH=200; bar.width=BW; bar.height=BH;
+  const bctx=bar.getContext('2d');
+  const maxCost=Math.max(...SPRINT_DATA.map(s=>s.cost));
+  const bw=Math.floor(BW/(N*1.5));
+  const BPAD={l:60,r:10,t:16,b:36};
+  const BCH=BH-BPAD.t-BPAD.b; const BCW=BW-BPAD.l-BPAD.r;
+  const bxStep=BCW/N;
+  bctx.clearRect(0,0,BW,BH);
+  SPRINT_DATA.forEach((s,i)=>{
+    const x=BPAD.l+i*bxStep+bxStep/2-bw/2;
+    const bh=Math.round((s.cost/maxCost)*BCH);
+    const y=BPAD.t+BCH-bh;
+    const g=bctx.createLinearGradient(0,y,0,y+bh);
+    const col=s.sp>0?'#111':'#888';
+    g.addColorStop(0,col); g.addColorStop(1,col+'44');
+    bctx.fillStyle=g; bctx.beginPath(); bctx.roundRect(x,y,bw,bh,2); bctx.fill();
+    bctx.fillStyle='#888'; bctx.font='8px Arial'; bctx.textAlign='center';
+    bctx.fillText(s.n.replace('Sprint ','S'),x+bw/2,BH-BPAD.b+13);
+    bctx.fillStyle=col; bctx.font='bold 8px Arial';
+    bctx.fillText(fmt(s.cost/1000000).replace('$','').replace(',','.')+' M',x+bw/2,y-4);
+  });
+  bctx.fillStyle='#aaa'; bctx.font='9px Arial'; bctx.textAlign='left';
+  bctx.fillText('● Negro = Sprint con SP (código entregado) · Gris = Sprint de análisis/diseño/QA',BPAD.l,BPAD.t+5);
+}
+</script>
+</body>
+</html>

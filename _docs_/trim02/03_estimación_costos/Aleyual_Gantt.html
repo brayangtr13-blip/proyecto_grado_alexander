@@ -1,0 +1,1413 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Aleyual — Control Store | Plan de Proyecto</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:#f3f4f6;color:#111;font-family:'Inter',system-ui,sans-serif;font-size:14px;line-height:1.5;}
+a{color:#111;text-decoration:underline;}
+a:hover{color:#555;}
+.page{max-width:1200px;margin:0 auto;padding:1.25rem 1rem 3rem;}
+/* HEADER */
+.site-hdr{background:#fff;border:1px solid #ddd;border-top:3px solid #111;border-radius:6px;padding:1.1rem 1.4rem;margin-bottom:1rem;display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;flex-wrap:wrap;}
+.site-hdr h1{font-size:1.15rem;font-weight:700;letter-spacing:-.02em;}
+.site-hdr h1 span{font-weight:300;color:#666;}
+.pills{display:flex;flex-wrap:wrap;gap:.3rem;}
+.pill{background:#f0f0f0;border:1px solid #d0d0d0;border-radius:3px;padding:.2rem .6rem;font-size:.7rem;font-weight:600;color:#333;}
+.pill.dark{background:#111;color:#fff;border-color:#111;}
+/* TOTAL BANNER */
+.total-banner{background:#111;color:#fff;border-radius:6px;padding:1.1rem 1.4rem;margin-bottom:1rem;display:grid;grid-template-columns:1fr 1fr 1fr 1fr 1.4fr;gap:1px;overflow:hidden;}
+.tb-item{padding:.5rem .9rem;border-right:1px solid #2a2a2a;}
+.tb-item:last-child{border-right:none;}
+.tb-lbl{font-size:.6rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:#777;margin-bottom:.25rem;}
+.tb-val{font-family:'JetBrains Mono',monospace;font-size:1rem;font-weight:600;}
+.tb-val.big{font-size:1.25rem;}
+/* TABS */
+.tab-bar{display:flex;gap:0;border-bottom:2px solid #111;margin-bottom:1rem;overflow-x:auto;}
+.tab-btn{padding:.5rem 1rem;font-size:.78rem;font-weight:600;cursor:pointer;border:none;background:transparent;color:#888;border-bottom:2px solid transparent;margin-bottom:-2px;white-space:nowrap;transition:color .15s,border-color .15s;}
+.tab-btn:hover{color:#333;}
+.tab-btn.active{color:#111;border-bottom-color:#111;}
+.tab-pane{display:none;}
+.tab-pane.active{display:block;}
+/* CARDS */
+.card{background:#fff;border:1px solid #ddd;border-radius:6px;overflow:hidden;margin-bottom:1rem;}
+.card-hdr{padding:.65rem 1rem;border-bottom:1px solid #eee;display:flex;justify-content:space-between;align-items:center;background:#fafafa;}
+.card-hdr h2{font-size:.75rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#333;}
+.badge{font-family:'JetBrains Mono',monospace;font-size:.82rem;font-weight:700;background:#111;color:#fff;padding:.2rem .65rem;border-radius:3px;}
+/* TABLES */
+.tbl{width:100%;border-collapse:collapse;font-size:.8rem;}
+.tbl thead tr{background:#111;}
+.tbl th{padding:.5rem .85rem;font-size:.64rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#aaa;text-align:left;border-bottom:1px solid #222;}
+.tbl th.r{text-align:right;}
+.tbl td{padding:.52rem .85rem;border-bottom:1px solid #f0f0f0;vertical-align:middle;}
+.tbl tr:nth-child(even) td{background:#fafafa;}
+.tbl tr:hover td{background:#f5f5f5;}
+.tbl .mono{font-family:'JetBrains Mono',monospace;font-size:.77rem;font-weight:600;}
+.tbl td.r{text-align:right;}
+.tbl .sub-row td{background:#e8e8e8;font-weight:700;font-size:.8rem;border-top:2px solid #111;}
+.tbl .sub-row td.r{font-family:'JetBrains Mono',monospace;}
+.tbl .tot-row td{background:#111;color:#fff;font-weight:700;border:none;}
+.tbl .tot-row td.r{font-family:'JetBrains Mono',monospace;font-size:.9rem;}
+.tbl .zero{color:#bbb;}
+.sec-label{background:#f0f0f0;font-weight:700;font-size:.72rem;letter-spacing:.05em;padding:.45rem .85rem;border-bottom:1px solid #ddd;}
+/* GANTT */
+.g-scroll{overflow-x:auto;border:1px solid #ddd;border-radius:6px;}
+.g-wrap{min-width:980px;}
+.g-head{display:grid;grid-template-columns:210px 75px 55px repeat(20,1fr);background:#111;}
+.g-hc{padding:.4rem .3rem;font-size:.58rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#888;text-align:center;border-right:1px solid #222;}
+.g-hc.lbl{text-align:left;padding-left:.7rem;}
+.g-phase{display:grid;grid-template-columns:210px 75px 55px repeat(20,1fr);border-bottom:1px solid #ddd;background:#f5f5f5;}
+.g-ph-lbl{grid-column:1/4;padding:.42rem .7rem;font-size:.7rem;font-weight:700;display:flex;align-items:center;gap:.5rem;border-right:1px solid #ddd;color:#111;}
+.g-task{display:grid;grid-template-columns:210px 75px 55px repeat(20,1fr);border-bottom:1px solid #f0f0f0;transition:background .1s;}
+.g-task:hover{background:#f9f9f9;}
+.g-tlbl{padding:.38rem .7rem;display:flex;flex-direction:column;justify-content:center;border-right:1px solid #eee;}
+.g-tid{font-size:.58rem;color:#bbb;font-weight:700;margin-bottom:1px;}
+.g-tnm{font-size:.7rem;line-height:1.25;}
+.g-tev{font-size:.6rem;color:#999;margin-top:1px;}
+.g-tresp{padding:.38rem .3rem;display:flex;align-items:center;justify-content:center;border-right:1px solid #eee;}
+.rchip{font-size:.58rem;font-weight:700;padding:.15rem .35rem;border-radius:3px;background:#e8e8e8;border:1px solid #ccc;text-align:center;line-height:1.2;color:#333;}
+.g-tpct{padding:.38rem .25rem;display:flex;align-items:center;justify-content:center;border-right:1px solid #eee;flex-direction:column;gap:2px;}
+.pct-n{font-size:.67rem;font-weight:700;}
+.pct-tr{width:100%;height:3px;background:#e8e8e8;border-radius:2px;overflow:hidden;}
+.pct-fi{height:100%;border-radius:2px;}
+.g-bc{position:relative;border-right:1px solid #f0f0f0;}
+.bar{position:absolute;top:50%;transform:translateY(-50%);height:8px;border-radius:2px;}
+.tod-ln{position:absolute;top:0;bottom:0;width:1.5px;background:#555;z-index:5;}
+.brk-bg{position:absolute;inset:0;background:repeating-linear-gradient(45deg,transparent,transparent 3px,rgba(0,0,0,.04) 3px,rgba(0,0,0,.04) 6px);}
+/* BREAKS */
+.brk-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.6rem;margin-top:.75rem;}
+.brk-card{background:#fff;border:1px solid #ddd;border-radius:5px;padding:.75rem .9rem;display:flex;gap:.65rem;align-items:flex-start;}
+.brk-icon{font-size:1.1rem;flex-shrink:0;}
+.brk-b strong{font-size:.75rem;font-weight:600;display:block;}
+.brk-b span{font-size:.68rem;color:#666;display:block;margin-top:1px;}
+.brk-b em{font-size:.63rem;color:#aaa;font-style:normal;}
+/* SOURCES */
+.src-box{background:#f8f8f8;border:1px solid #e5e5e5;border-radius:5px;padding:.8rem 1rem;margin-top:.75rem;}
+.src-box h4{font-size:.72rem;font-weight:700;margin-bottom:.4rem;color:#333;}
+.src-box ul{list-style:none;display:flex;flex-direction:column;gap:.3rem;}
+.src-box li{font-size:.72rem;color:#555;padding-left:.7rem;position:relative;line-height:1.5;}
+.src-box li::before{content:"→";position:absolute;left:0;color:#999;}
+/* CONTRACT */
+.contr-grid{display:grid;grid-template-columns:3fr 2fr;gap:.9rem;}
+.pro-list{display:flex;flex-direction:column;gap:.45rem;}
+.pro-item{display:flex;gap:.55rem;padding:.55rem .75rem;border:1px solid #eee;border-radius:4px;background:#fafafa;}
+.pro-ico{font-size:.85rem;flex-shrink:0;margin-top:1px;}
+.pro-b strong{font-size:.73rem;font-weight:600;display:block;}
+.pro-b span{font-size:.68rem;color:#555;line-height:1.4;}
+.warn-item{display:flex;gap:.55rem;padding:.55rem .75rem;border:1px solid #e5e5e5;border-radius:4px;}
+.oc-list{display:flex;flex-direction:column;gap:.6rem;}
+.oc{background:#fafafa;border:1px solid #ddd;border-radius:4px;padding:.75rem;}
+.oc h5{font-size:.72rem;font-weight:700;margin-bottom:.25rem;}
+.oc p{font-size:.68rem;color:#666;line-height:1.4;}
+/* TEAM */
+.team-grid{display:grid;grid-template-columns:1fr 1fr;gap:.9rem;margin-bottom:.9rem;}
+.team-col{border:1px solid #ddd;border-radius:6px;overflow:hidden;}
+.tc-hdr{padding:.6rem .9rem;border-bottom:1px solid #eee;background:#fafafa;display:flex;justify-content:space-between;align-items:center;}
+.tc-hdr h4{font-size:.75rem;font-weight:700;}
+.tc-hdr .tc-tot{font-family:'JetBrains Mono',monospace;font-size:.77rem;font-weight:700;}
+.t-row{display:grid;grid-template-columns:1fr auto;padding:.48rem .9rem;border-bottom:1px solid #f5f5f5;font-size:.77rem;align-items:center;}
+.t-rol{display:flex;align-items:center;gap:.4rem;}
+.t-n{font-size:.63rem;background:#e8e8e8;border:1px solid #ccc;padding:.1rem .32rem;border-radius:3px;font-weight:700;color:#555;}
+.t-cost{font-family:'JetBrains Mono',monospace;font-size:.73rem;color:#666;}
+.badge-m{font-size:.57rem;font-weight:700;padding:.1rem .32rem;border-radius:3px;background:#e0e0e0;color:#333;border:1px solid #bbb;}
+.badge-s{font-size:.57rem;font-weight:700;padding:.1rem .32rem;border-radius:3px;background:#c8c8c8;color:#111;border:1px solid #aaa;}
+.sav-row{background:#111;color:#fff;border-radius:5px;padding:.85rem 1.1rem;display:flex;gap:1.5rem;align-items:center;flex-wrap:wrap;}
+.sv-i .sv-l{font-size:.63rem;color:#888;margin-bottom:2px;}
+.sv-i .sv-v{font-family:'JetBrains Mono',monospace;font-size:.95rem;font-weight:700;}
+/* FOOTER */
+.footer{border-top:2px solid #111;padding:.9rem 0;margin-top:1rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.5rem;}
+.footer p{font-size:.68rem;color:#666;}
+@media(max-width:720px){
+  .total-banner{grid-template-columns:1fr 1fr;}
+  .brk-grid,.contr-grid,.team-grid{grid-template-columns:1fr;}
+}
+
+/* ── SCRUM STYLES ─────────────────────────────────────────────────── */
+.scrum-section{margin-bottom:1.25rem;}
+.scrum-title{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#555;margin-bottom:.6rem;padding-bottom:.4rem;border-bottom:2px solid #111;}
+.scrum-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.6rem;}
+.scrum-card{background:#fff;border:1px solid #ddd;border-radius:5px;padding:.75rem .9rem;}
+.scrum-card h4{font-size:.75rem;font-weight:700;margin-bottom:.3rem;}
+.scrum-card p{font-size:.72rem;color:#555;line-height:1.45;}
+.scrum-card .tag{font-size:.6rem;font-weight:700;background:#e8e8e8;border:1px solid #ccc;border-radius:3px;padding:.1rem .4rem;margin-right:.25rem;display:inline-block;margin-top:.25rem;}
+/* KANBAN */
+.kanban{display:grid;grid-template-columns:repeat(4,1fr);gap:.6rem;margin-bottom:1.25rem;}
+.kboard{background:#f8f8f8;border:1px solid #ddd;border-radius:6px;overflow:hidden;}
+.kboard-hdr{padding:.5rem .8rem;font-size:.68rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;border-bottom:1px solid #ddd;display:flex;justify-content:space-between;align-items:center;}
+.kboard-hdr .kcount{font-family:'JetBrains Mono',monospace;font-size:.75rem;font-weight:700;background:#111;color:#fff;padding:.1rem .4rem;border-radius:3px;}
+.kboard-body{padding:.5rem;display:flex;flex-direction:column;gap:.4rem;min-height:80px;}
+.kcard{background:#fff;border:1px solid #ddd;border-radius:4px;padding:.55rem .65rem;transition:box-shadow .15s;}
+.kcard:hover{box-shadow:0 2px 6px rgba(0,0,0,.08);}
+.kcard .kc-id{font-size:.6rem;font-weight:700;color:#aaa;margin-bottom:2px;}
+.kcard .kc-hist{font-size:.72rem;font-weight:500;line-height:1.3;color:#1a1a1a;}
+.kcard .kc-meta{display:flex;gap:.3rem;margin-top:.3rem;align-items:center;flex-wrap:wrap;}
+.kcard .kc-sp{font-family:'JetBrains Mono',monospace;font-size:.65rem;font-weight:700;background:#111;color:#fff;padding:.1rem .35rem;border-radius:3px;}
+.kcard .kc-epic{font-size:.6rem;font-weight:600;background:#e8e8e8;color:#333;padding:.1rem .35rem;border-radius:3px;}
+.kcard .kc-prio{font-size:.6rem;font-weight:700;padding:.1rem .35rem;border-radius:3px;}
+.prio-alta{background:#1a1a1a;color:#fff;}
+.prio-media{background:#888;color:#fff;}
+.prio-baja{background:#ddd;color:#555;}
+/* BURNDOWN */
+.burndown-wrap{background:#fff;border:1px solid #ddd;border-radius:6px;padding:.9rem 1rem;margin-bottom:1.25rem;}
+.burndown-wrap h3{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#333;margin-bottom:.75rem;}
+/* SPRINT TABLE */
+.sprint-tbl{width:100%;border-collapse:collapse;font-size:.77rem;}
+.sprint-tbl th{padding:.45rem .7rem;background:#111;color:#aaa;font-size:.62rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;text-align:left;border-bottom:1px solid #222;}
+.sprint-tbl th.r{text-align:right;}
+.sprint-tbl td{padding:.48rem .7rem;border-bottom:1px solid #f0f0f0;vertical-align:middle;}
+.sprint-tbl tr:nth-child(even) td{background:#fafafa;}
+.sprint-tbl .mono{font-family:'JetBrains Mono',monospace;font-size:.75rem;font-weight:600;}
+.sprint-tbl .s-done td{background:#e8e8e8;}
+.sprint-tbl .s-prog td{background:#f0f0f0;}
+.est-done{background:#1a1a1a;color:#fff;font-size:.65rem;font-weight:700;padding:.15rem .45rem;border-radius:3px;}
+.est-prog{background:#555;color:#fff;font-size:.65rem;font-weight:700;padding:.15rem .45rem;border-radius:3px;}
+.est-pend{background:#e8e8e8;color:#555;font-size:.65rem;font-weight:600;padding:.15rem .45rem;border-radius:3px;}
+/* CEREMONIES */
+.cerem-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:.5rem;margin-bottom:1.25rem;}
+.cerem-card{background:#fff;border:1px solid #ddd;border-radius:5px;padding:.7rem .8rem;border-top:3px solid #111;}
+.cerem-card h4{font-size:.72rem;font-weight:700;margin-bottom:.25rem;}
+.cerem-card .cerem-freq{font-size:.65rem;color:#888;font-style:italic;margin-bottom:.3rem;}
+.cerem-card p{font-size:.68rem;color:#555;line-height:1.4;}
+/* DOD */
+.dod-list{display:grid;grid-template-columns:repeat(4,1fr);gap:.5rem;}
+.dod-item{background:#fff;border:1px solid #ddd;border-radius:5px;padding:.65rem .8rem;}
+.dod-item .dod-n{font-family:'JetBrains Mono',monospace;font-size:.7rem;font-weight:700;color:#aaa;margin-bottom:2px;}
+.dod-item h5{font-size:.72rem;font-weight:700;margin-bottom:.2rem;}
+.dod-item p{font-size:.68rem;color:#555;line-height:1.4;}
+@media(max-width:720px){
+  .kanban,.scrum-grid,.cerem-grid,.dod-list{grid-template-columns:1fr 1fr;}
+}
+
+
+/* ── SERVER SECTION ────────────────────────────────────────────────── */
+.srv-kpi{display:grid;grid-template-columns:repeat(4,1fr);gap:.6rem;margin-bottom:1.25rem;}
+.srv-kpi-item{background:#fff;border:1px solid #ddd;border-radius:5px;padding:.85rem 1rem;}
+.srv-kpi-item .sk-label{font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#888;margin-bottom:.25rem;}
+.srv-kpi-item .sk-val{font-family:'JetBrains Mono',monospace;font-size:1.1rem;font-weight:700;color:#111;}
+.srv-kpi-item .sk-sub{font-size:.68rem;color:#aaa;margin-top:2px;}
+.pc-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;}
+.pc-card{background:#fff;border:1px solid #ddd;border-radius:6px;overflow:hidden;}
+.pc-card-hdr{padding:.7rem 1rem;border-bottom:1px solid #eee;background:#fafafa;display:flex;justify-content:space-between;align-items:center;}
+.pc-card-hdr h3{font-size:.8rem;font-weight:700;}
+.pc-card-hdr .budget{font-family:'JetBrains Mono',monospace;font-size:.78rem;font-weight:700;}
+.pc-card-hdr .budget.ok{color:#1a1a1a;background:#e8e8e8;padding:.15rem .55rem;border-radius:3px;}
+.pc-tbl{width:100%;border-collapse:collapse;font-size:.77rem;}
+.pc-tbl th{padding:.42rem .75rem;background:#111;color:#aaa;font-size:.62rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;text-align:left;}
+.pc-tbl td{padding:.48rem .75rem;border-bottom:1px solid #f0f0f0;vertical-align:middle;}
+.pc-tbl tr:nth-child(even) td{background:#fafafa;}
+.pc-tbl .comp-name{font-weight:600;font-size:.78rem;}
+.pc-tbl .comp-spec{font-size:.7rem;color:#666;display:block;margin-top:1px;}
+.pc-tbl .precio{font-family:'JetBrains Mono',monospace;font-size:.75rem;font-weight:600;text-align:right;}
+.prio-critico{background:#1a1a1a;color:#fff;font-size:.58rem;font-weight:700;padding:.12rem .38rem;border-radius:3px;}
+.prio-alto{background:#555;color:#fff;font-size:.58rem;font-weight:700;padding:.12rem .38rem;border-radius:3px;}
+.prio-medio{background:#ddd;color:#555;font-size:.58rem;font-weight:600;padding:.12rem .38rem;border-radius:3px;}
+.prio-opc{background:#f0f0f0;color:#888;font-size:.58rem;padding:.12rem .38rem;border-radius:3px;}
+.stack-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:.55rem;margin-bottom:1.25rem;}
+.stack-card{background:#fff;border:1px solid #ddd;border-radius:5px;padding:.7rem .8rem;border-top:2px solid #111;}
+.stack-card .sw-name{font-size:.75rem;font-weight:700;margin-bottom:2px;}
+.stack-card .sw-ver{font-size:.65rem;color:#888;margin-bottom:.3rem;}
+.stack-card .sw-fn{font-size:.68rem;color:#555;line-height:1.4;}
+.stack-card .sw-cmd{font-size:.62rem;font-family:'JetBrains Mono',monospace;background:#f0f0f0;padding:.2rem .4rem;border-radius:3px;margin-top:.3rem;display:block;word-break:break-all;}
+.net-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:.55rem;margin-bottom:1.25rem;}
+.net-card{background:#fff;border:1px solid #ddd;border-radius:5px;padding:.65rem .85rem;}
+.net-card .nc-label{font-size:.68rem;font-weight:700;color:#333;margin-bottom:2px;}
+.net-card .nc-val{font-family:'JetBrains Mono',monospace;font-size:.82rem;font-weight:700;color:#111;}
+.net-card .nc-desc{font-size:.67rem;color:#888;margin-top:2px;line-height:1.4;}
+.port-open{display:inline-block;width:8px;height:8px;background:#111;border-radius:50%;margin-right:4px;}
+.port-closed{display:inline-block;width:8px;height:8px;background:#bbb;border-radius:50%;margin-right:4px;}
+.dir-tree{background:#1a1a1a;border-radius:6px;padding:1rem 1.2rem;font-family:'JetBrains Mono',monospace;font-size:.75rem;line-height:1.9;color:#ccc;margin-bottom:1.25rem;overflow-x:auto;}
+.dir-tree .dir-root{color:#fff;font-weight:700;}
+.dir-tree .dir-comment{color:#666;}
+.comp-table{width:100%;border-collapse:collapse;font-size:.77rem;margin-bottom:1.25rem;}
+.comp-table th{padding:.45rem .85rem;background:#111;color:#aaa;font-size:.62rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;text-align:left;}
+.comp-table td{padding:.5rem .85rem;border-bottom:1px solid #f0f0f0;vertical-align:middle;}
+.comp-table tr:nth-child(even) td{background:#fafafa;}
+@media(max-width:720px){
+  .pc-grid,.net-grid,.srv-kpi{grid-template-columns:1fr;}
+  .stack-grid{grid-template-columns:1fr 1fr;}
+}
+
+
+/* ── GANTT INTERACTIVO ─────────────────────────────────────────────── */
+.gantt-overall-bar{background:#111;color:#fff;border-radius:6px;padding:.8rem 1.1rem;margin-bottom:.8rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.6rem;}
+.gantt-overall-bar .go-label{font-size:.68rem;color:#999;}
+.gantt-overall-bar .go-val{font-family:'JetBrains Mono',monospace;font-size:1.25rem;font-weight:700;}
+.gantt-overall-bar .go-track{flex:1;min-width:180px;height:8px;background:#333;border-radius:4px;overflow:hidden;}
+.gantt-overall-bar .go-fill{height:100%;background:#fff;border-radius:4px;transition:width .3s;}
+.gantt-reset-btn{background:#333;color:#fff;border:none;border-radius:4px;padding:.4rem .8rem;font-size:.68rem;font-weight:600;cursor:pointer;}
+.gantt-reset-btn:hover{background:#555;}
+.g-check{width:14px;height:14px;cursor:pointer;accent-color:#111;}
+.g-pct-input{width:38px;background:#eaf2fb;border:1px solid #b8d4f0;border-radius:3px;text-align:center;font-family:'JetBrains Mono',monospace;font-size:.65rem;font-weight:700;padding:.1rem 0;color:#111;}
+.g-pct-input:focus{outline:2px solid #111;}
+
+/* ── INFRAESTRUCTURA TÉCNICA (explicada) ─────────────────────────── */
+.infra2-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:.8rem;margin-bottom:1rem;}
+.infra2-card{background:#fff;border:1px solid #ddd;border-radius:6px;overflow:hidden;grid-column:1/-1;}
+.infra2-card-hdr{padding:.7rem 1rem;background:#111;color:#fff;}
+.infra2-card-hdr h4{font-size:.82rem;font-weight:700;}
+.infra2-card-hdr p{font-size:.68rem;color:#999;margin-top:1px;}
+.infra2-row{padding:.55rem .9rem;border-bottom:1px solid #f0f0f0;font-size:.74rem;}
+.infra2-row:nth-child(even){background:#fafafa;}
+.infra2-row .ir2-top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:2px;}
+.infra2-row .ir2-name{font-weight:700;color:#111;}
+.infra2-row .ir2-val{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:.7rem;background:#e8e8e8;padding:.1rem .4rem;border-radius:3px;}
+.infra2-row .ir2-exp{color:#666;font-style:italic;margin-bottom:2px;line-height:1.4;}
+.infra2-row .ir2-imp{color:#333;line-height:1.4;}
+.infra2-row .ir2-imp::before{content:"→ ";color:#999;}
+
+/* ── FUENTES ─────────────────────────────────────────────────────── */
+.fsrc-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:.8rem;margin-bottom:1rem;}
+.fsrc-card{background:#fff;border:1px solid #ddd;border-radius:6px;overflow:hidden;}
+.fsrc-card-hdr{padding:.7rem 1rem;background:#111;color:#fff;}
+.fsrc-card-hdr h4{font-size:.8rem;font-weight:700;}
+.fsrc-row{display:flex;justify-content:space-between;padding:.42rem .9rem;border-bottom:1px solid #f0f0f0;font-size:.73rem;align-items:flex-start;gap:.5rem;}
+.fsrc-row:nth-child(even){background:#fafafa;}
+.fsrc-label{color:#555;font-weight:600;flex-shrink:0;width:130px;}
+.fsrc-link{color:#111;text-decoration:underline;font-family:'JetBrains Mono',monospace;font-size:.66rem;word-break:break-all;}
+.fsrc-link:hover{color:#555;}
+
+</style>
+</head>
+<body>
+<div class="page">
+
+<header class="site-hdr">
+  <div>
+    <h1>Aleyual <span>/ Control Store</span></h1>
+    <p style="font-size:.75rem;color:#666;margin-top:.2rem;">Sistema de Autoservicio — Inventario · Ventas · Caja · Autoservicio Aleyual, Bogotá</p>
+  </div>
+  <div class="pills">
+    <span class="pill dark">2 Feb 2026 → 11 Sep 2027</span>
+    <span class="pill">20 meses</span>
+    <span class="pill">7 fases · 30 entregables</span>
+    <span class="pill">Prestación de Servicios</span>
+  </div>
+</header>
+
+<div class="total-banner">
+  <div class="tb-item"><div class="tb-lbl">I — RRHH</div><div class="tb-val">$161.733.333</div><div style="font-size:.63rem;color:#888;margin-top:1px;">7 roles · 10 personas</div></div>
+  <div class="tb-item"><div class="tb-lbl">II — Tecnología</div><div class="tb-val">$679.733</div><div style="font-size:.63rem;color:#888;margin-top:1px;">SW open source + AWS</div></div>
+  <div class="tb-item"><div class="tb-lbl">III — Gastos Admin.</div><div class="tb-val">$10.006.334</div><div style="font-size:.63rem;color:#888;margin-top:1px;">Servicios + Dep. por días hábiles</div></div>
+  <div class="tb-item"><div class="tb-lbl">Imprevistos (20%)</div><div class="tb-val">$34.483.880</div><div style="font-size:.63rem;color:#888;margin-top:1px;">+ Ganancia (15%): $31.035.492</div></div>
+  <div class="tb-item"><div class="tb-lbl">COSTO TOTAL PROYECTO</div><div class="tb-val big">$237.938.772</div><div style="font-size:.63rem;color:#aaa;margin-top:1px;">Base + Imprevistos + Ganancia</div></div>
+</div>
+
+<div class="tab-bar">
+  <button class="tab-btn active" onclick="tb('estimado',this)">Estimado Total</button>
+  <button class="tab-btn" onclick="tb('gantt',this)">Gantt</button>
+  <button class="tab-btn" onclick="tb('rrhh',this)">Recursos Humanos</button>
+  <button class="tab-btn" onclick="tb('tecno',this)">Recursos Tecnológicos</button>
+  <button class="tab-btn" onclick="tb('gastos',this)">Gastos Admin.</button>
+  <button class="tab-btn" onclick="tb('contrato',this)">Contrato</button>
+  <button class="tab-btn" onclick="tb('optim',this)">Optimización</button>
+  <button class="tab-btn" onclick="tb('scrum',this)">Scrum / Ágil</button>
+  <button class="tab-btn" onclick="tb('servidor',this)">Servidor &amp; Equipos</button>
+  <button class="tab-btn" onclick="tb('infra2',this)">Infraestructura</button>
+  <button class="tab-btn" onclick="tb('fuentes2',this)">Fuentes</button>
+</div>
+
+<!-- ═══════ TAB: ESTIMADO ═══════ -->
+<div class="tab-pane active" id="pane-estimado">
+  <div class="card">
+    <div class="card-hdr"><h2>Estimado Total del Proyecto — ¿Cuánto cuesta?</h2><span class="badge">$237.938.772</span></div>
+    <table class="tbl">
+      <thead><tr><th>#</th><th>Categoría de costo</th><th class="r">% del total</th><th class="r">Valor</th></tr></thead>
+      <tbody>
+        <tr><td class="zero" style="font-size:.7rem">I</td><td style="font-weight:500;">Recursos Profesionales (RRHH)</td><td class="r" style="color:#666;">67.3%</td><td class="r mono">$161.733.333</td></tr>
+        <tr><td class="zero" style="font-size:.7rem">II</td><td style="font-weight:500;">Recursos Tecnológicos</td><td class="r" style="color:#666;">2.2%</td><td class="r mono">$679.733</td></tr>
+        <tr><td class="zero" style="font-size:.7rem">III</td><td style="font-weight:500;">Gastos Administrativos</td><td class="r" style="color:#666;">3.1%</td><td class="r mono">$10.006.334</td></tr>
+        <tr class="sub-row"><td colspan="2">SUBTOTAL BASE</td><td class="r">72.5%</td><td class="r mono">$172.419.400</td></tr>
+        <tr><td class="zero" style="font-size:.7rem">IV</td><td style="font-weight:500;">Imprevistos y contingencias</td><td class="r" style="color:#666;font-weight:700;">20%</td><td class="r mono">$34.483.880</td></tr>
+        <tr><td class="zero" style="font-size:.7rem">V</td><td style="font-weight:500;">Ganancia / Utilidad del proyecto</td><td class="r" style="color:#666;font-weight:700;">15%</td><td class="r mono">$31.035.492</td></tr>
+        <tr class="tot-row"><td colspan="2">COSTO TOTAL DEL PROYECTO</td><td class="r">100%</td><td class="r mono">$237.938.772</td></tr>
+      </tbody>
+    </table>
+    <div style="padding:.7rem 1rem;font-size:.72rem;color:#888;background:#fafafa;border-top:1px solid #eee;">
+      <strong>Imprevistos 20%</strong>: cubre riesgos técnicos, cambios de requerimientos y retrasos imprevistos. &nbsp;|&nbsp;
+      <strong>Ganancia 15%</strong>: utilidad sobre el costo total (base + imprevistos). &nbsp;|&nbsp; Estándar PMI / PMBOK Colombia.
+    </div>
+  </div>
+</div>
+
+<!-- ═══════ TAB: GANTT ═══════ -->
+<div class="tab-pane" id="pane-gantt">
+  <div class="gantt-overall-bar">
+    <div><div class="go-label">Progreso general del proyecto</div><div class="go-val" id="go-pct2">0%</div></div>
+    <div class="go-track"><div class="go-fill" id="go-bar2" style="width:0%;"></div></div>
+    <button class="gantt-reset-btn" onclick="resetProgress2()">↺ Reiniciar avance</button>
+  </div>
+  <div style="display:flex;flex-wrap:wrap;gap:.35rem;margin-bottom:.65rem;font-size:.68rem;">
+    <span style="background:#555;color:#fff;padding:.18rem .55rem;border-radius:3px;">▋ Completado</span>
+    <span style="background:#bbb;color:#fff;padding:.18rem .55rem;border-radius:3px;">▋ Planeado</span>
+    <span style="background:repeating-linear-gradient(45deg,#eee,#eee 3px,#f8f8f8 3px,#f8f8f8 6px);color:#555;border:1px solid #ddd;padding:.18rem .55rem;border-radius:3px;">▒ Descanso</span>
+    <span style="border:1px solid #ddd;padding:.18rem .55rem;border-radius:3px;background:#fff;color:#555;">│ Hoy 13/05/2026</span>
+    <span style="margin-left:auto;font-size:.66rem;color:#888;">✓ Marca completado · Edita % directamente — se guarda en este navegador</span>
+  </div>
+  <div class="g-scroll"><div id="gantt-root"></div></div>
+  <div class="brk-grid" id="brk-root"></div>
+</div>
+
+<!-- ═══════ TAB: RRHH ═══════ -->
+<div class="tab-pane" id="pane-rrhh">
+  <div class="card">
+    <div class="card-hdr"><h2>Recursos Humanos — Prestación de Servicios · 10 personas · 7 roles</h2><span class="badge">$161.733.333</span></div>
+    <table class="tbl">
+      <thead><tr><th>ITEM</th><th>PROFESIONAL</th><th class="r">CANT</th><th class="r">SAL. MENSUAL</th><th class="r">MES</th><th class="r">V/DÍA</th><th class="r">HORAS/DÍA</th><th class="r">V/HORA</th><th class="r">DÍAS</th><th class="r">SALARIO REAL</th></tr></thead>
+      <tbody id="rrhh-tbody"></tbody>
+    </table>
+    <div style="padding:.7rem 1rem;font-size:.72rem;color:#888;background:#fafafa;border-top:1px solid #eee;">
+      NOTA: La contratación de los profesionales se hará por <strong>Prestación de Servicios</strong> según el tiempo que se requiera en el proyecto (Art. 34 C.S.T.)
+    </div>
+  </div>
+  <div class="src-box">
+    <h4>Fuentes de honorarios (mercado Colombia 2025–2026)</h4>
+    <ul>
+      <li><a href="https://co.indeed.com/career/desarrollador-de-software/salaries" target="_blank">Indeed Colombia</a> — Promedio dev software $3.079.491/mes (actualizado mayo 2026)</li>
+      <li><a href="https://www.glassdoor.com.mx/Sueldos/colombia-desarrollador-de-software-sueldo-SRCH_IL.0,8_IN47_KO9,34.htm" target="_blank">Glassdoor Colombia</a> — Dev Software $3.0M–$6.8M/mes según experiencia (2025)</li>
+      <li><a href="https://tusalario.org/colombia/carrera/funcion-y-salario/desarrolladores-de-software" target="_blank">tusalario.org/colombia</a> — Rango $3.2M–$17.4M/mes Dev Software (2026)</li>
+      <li><a href="https://www.coderhouse.com/us/sueldos/sueldo-desarrollador-full-stack-colombia-2025" target="_blank">Coderhouse Colombia</a> — Full Stack Mid: $5M–$7M/mes, Senior: desde $9M/mes</li>
+      <li><a href="https://talently.tech/herramientas/colombia/salario" target="_blank">Talently</a> — Dev Junior: ~$4.8M/mes, Senior: hasta $25M/mes (datos 2024)</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ═══════ TAB: TECNO ═══════ -->
+<div class="tab-pane" id="pane-tecno">
+  <div class="card">
+    <div class="card-hdr"><h2>Recursos Tecnológicos — Hardware · Software · Cloud</h2><span class="badge">$679.733</span></div>
+
+    <div class="sec-label">A. HARDWARE — Dispositivos</div>
+    <table class="tbl">
+      <thead><tr><th>#</th><th>Ítem</th><th>Especificación</th><th>¿Aplica?</th><th class="r">Costo</th></tr></thead>
+      <tbody>
+        <tr><td style="font-size:.7rem;color:#888">1</td><td colspan="3" style="font-weight:700;font-size:.8rem;background:#f0f0f0;">DISPOSITIVO FINAL — 5 equipos en total (ver hoja Servidor &amp; Equipos)</td><td class="r" style="background:#f0f0f0;"></td></tr>
+        <tr><td style="font-size:.7rem;color:#888">1.1</td><td>PC 1, PC 2, PC 4 y PC 5 — Trabajadores del proyecto</td><td style="font-size:.72rem;color:#888;">4 estaciones de desarrollo · $3.840.000 c/u · solo depreciación en Gastos</td><td>Ya existen</td><td class="r zero mono">—</td></tr>
+        <tr><td style="font-size:.7rem;color:#888">1.2</td><td>PC 3 — Servidor local de la tienda</td><td style="font-size:.72rem;color:#888;">i5-12400 · 32 GB RAM · 2.5 TB · YA ES PROPIEDAD de Autoservicio Aleyual</td><td>✓ Ya existe — $0</td><td class="r zero mono">—</td></tr>
+        <tr><td style="font-size:.7rem;color:#888">1.3</td><td>Servidor Virtual (cloud) ó</td><td style="font-size:.72rem;color:#888;">AWS EC2 T6–T7 — alternativa al servidor físico en producción</td><td>Ver sección C</td><td class="r zero mono">—</td></tr>
+        <tr class="sub-row"><td colspan="4">Total Hardware (PC3 ya existe — sin costo de compra)</td><td class="r mono">$0</td></tr>
+      </tbody>
+    </table>
+
+    <div class="sec-label">B. SOFTWARE — Licencias (stack 100% open source)</div>
+    <table class="tbl">
+      <thead><tr><th>#</th><th>Software</th><th>Versión / Proveedor</th><th>Costo</th><th class="r">Total</th></tr></thead>
+      <tbody>
+        <tr><td style="font-size:.7rem;color:#888">1</td><td>Software de Sistema</td><td style="font-size:.72rem;color:#888;">Ubuntu Server 24.04 LTS</td><td style="font-size:.72rem;color:#888;font-style:italic;">Gratuito — Open Source</td><td class="r zero mono">—</td></tr>
+        <tr><td style="font-size:.7rem;color:#888">1.1</td><td>Software de Protección</td><td style="font-size:.72rem;color:#888;">ClamAV + UFW Firewall</td><td style="font-size:.72rem;color:#888;font-style:italic;">Gratuito — Open Source</td><td class="r zero mono">—</td></tr>
+        <tr><td style="font-size:.7rem;color:#888">2</td><td>Software de Aplicación</td><td style="font-size:.72rem;color:#888;">Sistema Aleyual (desarrollo propio)</td><td style="font-size:.72rem;color:#888;font-style:italic;">Producto del proyecto</td><td class="r zero mono">—</td></tr>
+        <tr><td style="font-size:.7rem;color:#888">3</td><td>Software de Desarrollo</td><td style="font-size:.72rem;color:#888;">VS Code, Git, Postman, DBeaver</td><td style="font-size:.72rem;color:#888;font-style:italic;">Gratuito — Open Source</td><td class="r zero mono">—</td></tr>
+        <tr><td style="font-size:.7rem;color:#888">4</td><td>Lenguajes</td><td style="font-size:.72rem;color:#888;">Node.js 20 LTS, Python 3.12</td><td style="font-size:.72rem;color:#888;font-style:italic;">Gratuito — Open Source</td><td class="r zero mono">—</td></tr>
+        <tr><td style="font-size:.7rem;color:#888">5</td><td>FrameWorks</td><td style="font-size:.72rem;color:#888;">React 18, Express 4, FastAPI</td><td style="font-size:.72rem;color:#888;font-style:italic;">Gratuito — Open Source</td><td class="r zero mono">—</td></tr>
+        <tr><td style="font-size:.7rem;color:#888">6</td><td>Librerías</td><td style="font-size:.72rem;color:#888;">npm packages, pip packages</td><td style="font-size:.72rem;color:#888;font-style:italic;">Gratuito — Open Source</td><td class="r zero mono">—</td></tr>
+        <tr><td style="font-size:.7rem;color:#888">7</td><td>Licencias (Soft de terceros)</td><td style="font-size:.72rem;color:#888;">No requeridas — stack open source</td><td style="font-size:.72rem;color:#888;font-style:italic;">N/A</td><td class="r zero mono">—</td></tr>
+        <tr><td style="font-size:.7rem;color:#888">8</td><td>HOSTING (Alojamiento)</td><td style="font-size:.72rem;color:#888;">AWS — ver sección C</td><td style="font-size:.72rem;color:#888;font-style:italic;">Ver sección C</td><td class="r zero mono">—</td></tr>
+        <tr><td style="font-size:.7rem;color:#888">9</td><td>Dominio (DNS)</td><td style="font-size:.72rem;color:#888;">dominio.com.co — $1.000.000/año</td><td style="font-size:.72rem;color:#888;">$83.333 × 20 meses</td><td class="r mono">$83.333</td></tr>
+        <tr class="sub-row"><td colspan="4">Total Software</td><td class="r mono">$83.333</td></tr>
+      </tbody>
+    </table>
+
+    <div class="sec-label">C. HOSTING Y SERVICIOS CLOUD — AWS (Recomendado) / Azure ó / Google Cloud</div>
+    <table class="tbl">
+      <thead><tr><th>#</th><th>Servicio</th><th>Instancia / Plan</th><th class="r">Costo/mes</th><th class="r">Meses</th><th class="r">Total</th></tr></thead>
+      <tbody>
+        <tr><td colspan="6" class="sec-label">AWS (Amazon Web Services) — Región us-east-1 — Proveedor recomendado</td></tr>
+        <tr><td style="font-size:.7rem;color:#888">C.1.1</td><td>Servidor Web — EC2 t3.small</td><td style="font-size:.72rem;color:#888;">1 vCPU, 2 GB RAM — $0.0208 USD/h</td><td class="r mono">$63.000</td><td class="r">6</td><td class="r mono">$378.000</td></tr>
+        <tr><td style="font-size:.7rem;color:#888">C.1.2</td><td>Base de Datos — RDS MySQL t3.micro</td><td style="font-size:.72rem;color:#888;">1 vCPU, 1 GB RAM — $0.017 USD/h</td><td class="r mono">$42.000</td><td class="r">4</td><td class="r mono">$168.000</td></tr>
+        <tr><td style="font-size:.7rem;color:#888">C.1.3</td><td>Almacenamiento — S3 Standard</td><td style="font-size:.72rem;color:#888;">~5 GB fotos e inventario</td><td class="r mono">$8.400</td><td class="r">6</td><td class="r mono">$50.400</td></tr>
+        <tr><td style="font-size:.7rem;color:#888">C.1.4</td><td>Dirección IP pública</td><td style="font-size:.72rem;color:#888;">Elastic IP (incluida con instancia activa)</td><td class="r zero mono">—</td><td class="r zero">—</td><td class="r zero mono">$0</td></tr>
+        <tr><td style="font-size:.7rem;color:#888">C.1.5</td><td>Puertos y Seguridad</td><td style="font-size:.72rem;color:#888;">Security Groups (incluido en EC2)</td><td class="r zero mono">—</td><td class="r zero">—</td><td class="r zero mono">$0</td></tr>
+        <tr><td colspan="6" class="sec-label" style="font-size:.68rem;font-style:italic;font-weight:400;color:#888;">Azure ó Google Cloud — alternativas válidas, no se acumulan con AWS</td></tr>
+        <tr class="sub-row"><td colspan="5">Total Hosting y Cloud</td><td class="r mono">$596.400</td></tr>
+        <tr class="tot-row"><td colspan="5">TOTAL RECURSOS TECNOLÓGICOS</td><td class="r mono">$679.733</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="src-box">
+    <h4>Fuentes de precios cloud y software (jun 2026)</h4>
+    <ul>
+      <li><a href="https://aws.amazon.com/es/ec2/pricing/on-demand/" target="_blank">aws.amazon.com/es/ec2/pricing/on-demand/</a> — EC2 t3.small Linux us-east-1: $0.0208 USD/hora ≈ $15 USD/mes</li>
+      <li><a href="https://calculator.aws/pricing/2/metahtml" target="_blank">calculator.aws</a> — Calculadora oficial AWS para estimar costos exactos</li>
+      <li><a href="https://aws.amazon.com/es/rds/mysql/pricing/" target="_blank">aws.amazon.com/es/rds/mysql/pricing/</a> — RDS MySQL t3.micro: ~$0.017 USD/hora. Free Tier: 750h/mes los primeros 12 meses</li>
+      <li><a href="https://aws.amazon.com/es/s3/pricing/" target="_blank">aws.amazon.com/es/s3/pricing/</a> — S3 Standard: $0.023 USD/GB/mes. 5 GB ≈ $2 USD/mes</li>
+      <li><a href="https://azure.microsoft.com/es-es/pricing/calculator/" target="_blank">azure.microsoft.com/es-es/pricing/calculator/</a> — Calculadora Azure (alternativa)</li>
+      <li><a href="https://cloud.google.com/products/calculator" target="_blank">cloud.google.com/products/calculator</a> — Calculadora Google Cloud (alternativa)</li>
+      <li><a href="https://nic.co/" target="_blank">nic.co</a> — Dominio .co: $89.000 COP/año registro y renovación</li>
+      <li><a href="https://www.banrep.gov.co/es/estadisticas/trm" target="_blank">banrep.gov.co</a> — Tasa de cambio USD/COP: ~$4.200 (referencia BanRep jun 2026)</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ═══════ TAB: GASTOS ═══════ -->
+<div class="tab-pane" id="pane-gastos">
+  <div class="card">
+    <div class="card-hdr"><h2>Gastos Administrativos — Arriendo, Servicios y Depreciación</h2><span class="badge">$10.006.334</span></div>
+
+    <div class="sec-label">A. ARRIENDO Y SERVICIOS — Gastos fijos que se deben considerar durante el desarrollo del proyecto</div>
+    <table class="tbl">
+      <thead><tr><th>#</th><th>Servicio</th><th class="r">Costo/mes</th><th class="r">Meses</th><th class="r">Total</th></tr></thead>
+      <tbody>
+        <tr><td style="font-size:.7rem;color:#888">1</td><td>Luz (energía eléctrica — 30% del recibo)</td><td class="r mono">$150.000</td><td class="r">20</td><td class="r mono">$3.000.000</td></tr>
+        <tr><td style="font-size:.7rem;color:#888">2</td><td>Agua (10% del consumo mensual)</td><td class="r mono">$15.000</td><td class="r">20</td><td class="r mono">$300.000</td></tr>
+        <tr><td style="font-size:.7rem;color:#888">3</td><td>Internet — fibra óptica (100% del plan)</td><td class="r mono">$120.000</td><td class="r">20</td><td class="r mono">$2.400.000</td></tr>
+        <tr><td style="font-size:.7rem;color:#888">4</td><td>Papelería e insumos de oficina</td><td class="r mono">$25.000</td><td class="r">20</td><td class="r mono">$500.000</td></tr>
+        <tr><td style="font-size:.7rem;color:#888">5</td><td>Arriendo espacio de trabajo (trabajo desde casa)</td><td class="r zero mono">—</td><td class="r zero">—</td><td class="r zero mono">$0</td></tr>
+        <tr class="sub-row"><td colspan="4">Total Arriendo y Servicios</td><td class="r mono">$6.200.000</td></tr>
+      </tbody>
+    </table>
+    <div style="padding:.55rem .9rem;font-size:.7rem;color:#888;background:#fafafa;border-bottom:1px solid #eee;">
+      NOTA: Gastos fijos que se deben considerar durante el desarrollo del proyecto.
+    </div>
+
+    <div class="sec-label">B. DEPRECIACIÓN — 4 equipos de trabajadores (PC3 servidor YA EXISTE, no se deprecia)</div>
+    <table class="tbl">
+      <thead><tr><th>COMP</th><th>Detalle</th><th class="r">Costo ref.</th><th class="r">Vida útil / Método</th><th class="r">Dep. Total</th></tr></thead>
+      <tbody>
+        <tr><td style="font-weight:700;font-size:.78rem;">PC 1</td><td>Trabajador / Desarrollador A</td><td class="r mono">$3.840.000</td><td class="r" style="font-size:.72rem;">1.825 días (5 años) · 357 días hábiles</td><td class="r mono">$751.167</td></tr>
+        <tr><td style="font-weight:700;font-size:.78rem;">PC 2</td><td>Trabajador / Desarrollador B</td><td class="r mono">$3.840.000</td><td class="r" style="font-size:.72rem;">1.825 días (5 años) · 357 días hábiles</td><td class="r mono">$751.167</td></tr>
+        <tr><td style="font-weight:700;font-size:.78rem;">PC 4</td><td>Trabajador / Desarrollador C <span style="background:#e8e8e8;font-size:.62rem;padding:.05rem .3rem;border-radius:3px;">NUEVO</span></td><td class="r mono">$3.840.000</td><td class="r" style="font-size:.72rem;">60 meses (5 años) · 18 meses trabajados</td><td class="r mono">$1.152.000</td></tr>
+        <tr><td style="font-weight:700;font-size:.78rem;">PC 5</td><td>Trabajador / Desarrollador D <span style="background:#e8e8e8;font-size:.62rem;padding:.05rem .3rem;border-radius:3px;">NUEVO</span></td><td class="r mono">$3.840.000</td><td class="r" style="font-size:.72rem;">60 meses (5 años) · 18 meses trabajados</td><td class="r mono">$1.152.000</td></tr>
+        <tr style="background:#f5f5f5;"><td colspan="5" style="font-size:.7rem;color:#666;font-style:italic;">PC1/PC2: Costo ÷ 1.825 días × 357 días hábiles reales. PC4/PC5 (nuevos): Costo ÷ 60 meses × 18 meses trabajados. El valor de compra de los 4 equipos NUNCA se suma al presupuesto — son propiedad personal.</td></tr>
+        <tr class="sub-row"><td colspan="4">Total Depreciación (4 equipos de trabajadores)</td><td class="r mono">$3.806.334</td></tr>
+        <tr><td colspan="5" style="font-size:.7rem;color:#888;font-style:italic;background:#fafafa;">PC 3 (servidor de la tienda) YA ES PROPIEDAD de Autoservicio Aleyual — no se compra ni se deprecia en este proyecto.</td></tr>
+        <tr class="tot-row"><td colspan="4">TOTAL GASTOS ADMINISTRATIVOS</td><td class="r mono">$10.006.334</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="src-box">
+    <h4>Fuentes de costos de servicios y depreciación (Colombia 2026)</h4>
+    <ul>
+      <li><a href="https://www.codensa.com.co" target="_blank">codensa.com.co</a> — Factura promedio energía residencial Bogotá: $400K–$600K/mes. Proporción 30% para oficina en casa.</li>
+      <li><a href="https://www.claro.com.co/personas/servicios/internet/" target="_blank">claro.com.co/personas/servicios/internet/</a> — Internet fibra: $99.900–$149.900/mes (100–200 Mbps, Bogotá 2026)</li>
+      <li><a href="https://www.tigo.com.co/internet" target="_blank">tigo.com.co/internet</a> — Internet hogar desde $89.900/mes (alternativa)</li>
+      <li><a href="https://nic.co/" target="_blank">nic.co</a> — Dominio .co: $89.000/año (registro y renovación)</li>
+      <li>Depreciación: <strong>Método de línea recta</strong>. NIIF para Pymes (Marco Técnico Normativo). Vida útil equipos TI: 3–5 años (estándar), usamos 10 años (conservador). Ref: <a href="https://www.contaduria.gov.co" target="_blank">contaduria.gov.co</a></li>
+    </ul>
+  </div>
+</div>
+
+<!-- ═══════ TAB: CONTRATO ═══════ -->
+<div class="tab-pane" id="pane-contrato">
+  <div class="card">
+    <div class="card-hdr"><h2>✅ Contrato recomendado: Prestación de Servicios — Art. 34 C.S.T.</h2></div>
+    <div style="padding:.65rem 1rem;font-size:.8rem;border-bottom:1px solid #eee;">
+      Modalidad estándar del sector TI en Colombia. Sin carga prestacional. Pago solo por días efectivos. El propio proyecto ya lo contempla.
+    </div>
+    <div style="padding:.9rem 1rem;" class="contr-grid">
+      <div>
+        <p style="font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:.55rem;color:#333;">Ventajas</p>
+        <div class="pro-list">
+          <div class="pro-item"><div class="pro-ico">💰</div><div class="pro-b"><strong>Ahorro 42–52%</strong><span>Sin cesantías, prima, vacaciones ni dotación a cargo del contratante. Mayor diferencial frente a contrato laboral.</span></div></div>
+          <div class="pro-item"><div class="pro-ico">📅</div><div class="pro-b"><strong>~86 días sin costo</strong><span>Descansos no se facturan. Perfecto para 7 trimestres con pausas entre fases.</span></div></div>
+          <div class="pro-item"><div class="pro-ico">🔁</div><div class="pro-b"><strong>Flexibilidad por fase</strong><span>Vincular/desvincular profesionales por trimestre sin liquidaciones. Ideal para Gestor BD (solo T3–T4).</span></div></div>
+          <div class="pro-item"><div class="pro-ico">📦</div><div class="pro-b"><strong>Pago por entregables</strong><span>Resultados medibles: mockups, scripts SQL, API documentada, pruebas ISO 25010. No por asistencia.</span></div></div>
+          <div class="warn-item"><div class="pro-ico">⚠️</div><div class="pro-b"><strong>Obligación del contratista</strong><span>Asume salud (12.5%) y pensión (16%) propias. Negociar honorario 25–30% superior al salario equivalente.</span></div></div>
+          <div class="warn-item"><div class="pro-ico">⚖️</div><div class="pro-b"><strong>Evitar contrato realidad</strong><span>No imponer horario fijo. Pagar por entregables, no por asistencia, para no generar relación laboral de hecho.</span></div></div>
+        </div>
+      </div>
+      <div>
+        <p style="font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:.55rem;color:#333;">Otras modalidades — no aplican</p>
+        <div class="oc-list">
+          <div class="oc"><h5>❌ Término fijo</h5><p>Incluye todas las prestaciones (+52% costo). Solo para empleados permanentes de la empresa ejecutora.</p></div>
+          <div class="oc"><h5>❌ Obra o labor</h5><p>También exige prestaciones. Aplica cuando el trabajador es parte de la empresa ejecutora del proyecto.</p></div>
+          <div class="oc"><h5>❌ Indefinido</h5><p>Máximo costo, mínima flexibilidad. Imposible terminar sin indemnización con fecha de entrega fija.</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="src-box">
+    <h4>Fuentes legales</h4>
+    <ul>
+      <li><a href="https://leyes.co/codigo_sustantivo_del_trabajo/34.htm" target="_blank">leyes.co — Código Sustantivo del Trabajo Art. 34</a>: Trabajadores independientes y contratistas</li>
+      <li><a href="https://www.dian.gov.co" target="_blank">dian.gov.co</a> — Retención en la fuente en contratos de servicios (100% del 11% si honorarios &gt; $1.340.000/mes aprox.)</li>
+      <li><a href="https://www.mintic.gov.co" target="_blank">mintic.gov.co</a> — Contratación TI en Colombia y modalidades para desarrollo de software</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ═══════ TAB: OPTIMIZACIÓN ═══════ -->
+<div class="tab-pane" id="pane-optim">
+  <div class="team-grid">
+    <div class="team-col">
+      <div class="tc-hdr"><h4>Equipo original — 10 personas</h4><span class="tc-tot" style="color:#888;">$28.700.000/mes</span></div>
+      <div class="t-row"><div class="t-rol"><span class="t-n">1</span>Arquitecto de Software</div><div class="t-cost">$5.500.000</div></div>
+      <div class="t-row" style="background:#fafafa;"><div class="t-rol"><span class="t-n">1</span>Administrador Proyecto</div><div class="t-cost">$4.800.000</div></div>
+      <div class="t-row"><div class="t-rol"><span class="t-n">2</span>Analista de Software</div><div class="t-cost">$6.000.000</div></div>
+      <div class="t-row" style="background:#fafafa;"><div class="t-rol"><span class="t-n">1</span>Gestor de Bases de Datos</div><div class="t-cost">$4.000.000</div></div>
+      <div class="t-row"><div class="t-rol"><span class="t-n">1</span>Desarrollador Web</div><div class="t-cost">$3.800.000</div></div>
+      <div class="t-row" style="background:#fafafa;"><div class="t-rol"><span class="t-n">3</span>Desarrollador Backend</div><div class="t-cost">$12.600.000</div></div>
+      <div class="t-row"><div class="t-rol"><span class="t-n">1</span>Tester</div><div class="t-cost">$3.200.000</div></div>
+    </div>
+    <div class="team-col" style="border-top:3px solid #111;">
+      <div class="tc-hdr"><h4>Equipo optimizado — 7 perfiles</h4><span class="tc-tot">$23.500.000/mes</span></div>
+      <div class="t-row"><div class="t-rol"><span class="t-n">1</span>Administrador Proyecto <span class="badge-m">multifunción</span></div><div class="t-cost">$4.800.000</div></div>
+      <div class="t-row" style="background:#fafafa;"><div class="t-rol"><span class="t-n">1</span>Arquitecto de Software <span class="badge-m">multifunción</span></div><div class="t-cost">$5.500.000</div></div>
+      <div class="t-row"><div class="t-rol"><span class="t-n">1</span>Analista de Software <span class="badge-s">ahorro</span></div><div class="t-cost">$3.000.000</div></div>
+      <div class="t-row" style="background:#fafafa;"><div class="t-rol"><span class="t-n">1</span>Gestor de Bases de Datos</div><div class="t-cost">$4.000.000</div></div>
+      <div class="t-row"><div class="t-rol"><span class="t-n">2</span>Dev Full-Stack <span class="badge-s">ahorro</span> <span class="badge-m">multifunción</span></div><div class="t-cost">$9.000.000</div></div>
+      <div class="t-row" style="background:#fafafa;"><div class="t-rol"><span class="t-n">1</span>Tester / QA <span class="badge-m">multifunción</span></div><div class="t-cost">$3.200.000</div></div>
+    </div>
+  </div>
+  <div class="sav-row">
+    <div class="sv-i"><div class="sv-l">Ahorro mensual</div><div class="sv-v">$5.200.000</div></div>
+    <div style="width:1px;height:30px;background:#333;"></div>
+    <div class="sv-i"><div class="sv-l">Ahorro total proyecto</div><div class="sv-v">~$32.100.000</div></div>
+    <div style="width:1px;height:30px;background:#333;"></div>
+    <div class="sv-i"><div class="sv-l">Reducción equipo</div><div class="sv-v">10 → 7 personas</div></div>
+    <div style="margin-left:auto;font-size:.73rem;color:#888;max-width:340px;line-height:1.6;">2 Dev Full-Stack reemplazan 1 Dev Web + 3 Backend. Tester cubre manuales en T7. Admin cubre análisis en T1.</div>
+  </div>
+</div>
+
+
+<!-- ═══════ TAB: SCRUM ═══════ -->
+<div class="tab-pane" id="pane-scrum">
+
+  <!-- ROLES -->
+  <div class="scrum-section">
+    <div class="scrum-title">Roles Scrum — Control Store</div>
+    <div class="scrum-grid">
+      <div class="scrum-card" style="border-top:3px solid #111;">
+        <h4>🎯 Product Owner</h4>
+        <p><strong>Administrador de Proyecto</strong></p>
+        <p style="margin-top:.3rem;">Define y prioriza el Product Backlog. Representa al cliente (Autoservicio Aleyual). Acepta o rechaza cada entregable del Sprint.</p>
+        <span class="tag">Prioriza US</span><span class="tag">Acepta entregables</span><span class="tag">Define el "qué"</span>
+      </div>
+      <div class="scrum-card" style="border-top:3px solid #555;">
+        <h4>⚙️ Scrum Master</h4>
+        <p><strong>Arquitecto de Software</strong></p>
+        <p style="margin-top:.3rem;">Facilita las ceremonias Scrum. Elimina impedimentos técnicos y arquitectónicos. Garantiza que el equipo siga el proceso ágil.</p>
+        <span class="tag">Facilita ceremonias</span><span class="tag">Elimina bloqueos</span><span class="tag">Guarda el proceso</span>
+      </div>
+      <div class="scrum-card" style="border-top:3px solid #aaa;">
+        <h4>💻 Development Team</h4>
+        <p><strong>Dev Full-Stack ×2, Gestor BD, Dev Backend, Tester</strong></p>
+        <p style="margin-top:.3rem;">Equipo autoorganizado y multifuncional. Transforma el Sprint Backlog en incrementos funcionales del sistema.</p>
+        <span class="tag">Estima SP</span><span class="tag">Construye el "cómo"</span><span class="tag">Demo en Review</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- CEREMONIAS -->
+  <div class="scrum-section">
+    <div class="scrum-title">Ceremonias Scrum — Ciclo por Sprint (3–4 semanas)</div>
+    <div class="cerem-grid">
+      <div class="cerem-card"><h4>🗓️ Sprint Planning</h4><div class="cerem-freq">Inicio de cada Sprint · ≤ 2 h</div><p>Todo el equipo. Se seleccionan las US del Product Backlog y se construye el Sprint Backlog con el compromiso del equipo.</p></div>
+      <div class="cerem-card"><h4>☀️ Daily Scrum</h4><div class="cerem-freq">Cada día hábil · 15 min</div><p>Dev Team + Scrum Master. Responde: ¿Qué hice ayer? ¿Qué haré hoy? ¿Tengo algún impedimento?</p></div>
+      <div class="cerem-card"><h4>🚀 Sprint Review</h4><div class="cerem-freq">Final del Sprint · ≤ 1 h</div><p>Demo del Incremento funcional al Product Owner. Se acepta o rechaza cada Historia de Usuario según los criterios de aceptación.</p></div>
+      <div class="cerem-card"><h4>🔄 Retrospectiva</h4><div class="cerem-freq">Final del Sprint · ≤ 45 min</div><p>Equipo analiza el proceso: ¿Qué salió bien? ¿Qué mejorar? Se genera un plan de mejora para el siguiente Sprint.</p></div>
+      <div class="cerem-card"><h4>📋 Backlog Refinement</h4><div class="cerem-freq">1 vez/semana · ≤ 1 h</div><p>PO + Dev Team revisan, estiman y descomponen las US para los próximos Sprints. Se mantiene el backlog ordenado y listo.</p></div>
+    </div>
+  </div>
+
+  <!-- BURNDOWN -->
+  <div class="scrum-section">
+    <div class="burndown-wrap">
+      <h3>Burndown Chart — Velocidad del proyecto · 175 Story Points · 8 Sprints de desarrollo</h3>
+      <canvas id="burndown-canvas" height="200" style="width:100%;"></canvas>
+      <div style="display:flex;gap:1.5rem;margin-top:.5rem;font-size:.68rem;color:#888;">
+        <span>─── Línea ideal (descenso constante)</span>
+        <span style="color:#111;">─── Velocidad real (proyectada)</span>
+        <span>SP = Story Points · Sprints 0–6: análisis y diseño (0 SP de desarrollo)</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- KANBAN BOARD -->
+  <div class="scrum-section">
+    <div class="scrum-title">Sprint Backlog — Tablero Scrum (Sprint actual: Sprint 6 · En Progreso)</div>
+    <div class="kanban" id="kanban-board"></div>
+  </div>
+
+  <!-- SPRINT PLANNING TABLE -->
+  <div class="scrum-section">
+    <div class="scrum-title">Sprint Planning — Los 15 Sprints del Proyecto</div>
+    <div class="card">
+      <table class="sprint-tbl" id="sprint-table"></table>
+    </div>
+  </div>
+
+  <!-- PRODUCT BACKLOG -->
+  <div class="scrum-section">
+    <div class="scrum-title">Product Backlog — 30 Historias de Usuario · 175 Story Points</div>
+    <div class="card">
+      <table class="tbl" id="backlog-table"></table>
+    </div>
+  </div>
+
+  <!-- DEFINITION OF DONE -->
+  <div class="scrum-section">
+    <div class="scrum-title">Definition of Done (DoD) — Criterios globales de aceptación</div>
+    <div class="dod-list" id="dod-list"></div>
+  </div>
+
+</div>
+
+
+<div class="tab-pane" id="pane-servidor">
+
+  <!-- KPIs -->
+  <div class="srv-kpi">
+    <div class="srv-kpi-item" style="border-top:3px solid #111;">
+      <div class="sk-label">PC 3 — Servidor de la Tienda</div>
+      <div class="sk-val">$0</div>
+      <div class="sk-sub">YA ES PROPIEDAD de Aleyual — sin compra</div>
+    </div>
+    <div class="srv-kpi-item" style="border-top:3px solid #555;">
+      <div class="sk-label">4 PCs Trabajadores</div>
+      <div class="sk-val">$0 compra</div>
+      <div class="sk-sub">Propiedad personal · solo se deprecia su uso</div>
+    </div>
+    <div class="srv-kpi-item">
+      <div class="sk-label">Depreciación total (4 PCs)</div>
+      <div class="sk-val">$3.806.334</div>
+      <div class="sk-sub">PC1/PC2: 357 días · PC4/PC5: 18 meses</div>
+    </div>
+    <div class="srv-kpi-item">
+      <div class="sk-label">Inversión real al proyecto</div>
+      <div class="sk-val">$3.806.334</div>
+      <div class="sk-sub">Solo depreciación — $0 en compras de equipo</div>
+    </div>
+  </div>
+
+  <!-- PCs -->
+  <div class="pc-grid" id="pc-grid"></div>
+  <div class="pc-grid" id="pc-grid-new"></div>
+
+  <!-- Software Stack -->
+  <div class="section-title"><div class="dot" style="background:#111;"></div><h2>Software Stack — Servidor Local (todo open source · $0)</h2></div>
+  <div class="stack-grid" id="stack-grid"></div>
+
+  <!-- Red -->
+  <div class="section-title"><div class="dot" style="background:#111;"></div><h2>Configuración de Red — Red local Autoservicio Aleyual</h2></div>
+  <div class="net-grid" id="net-grid"></div>
+
+  <!-- Dir tree -->
+  <!-- Comparativa Local vs AWS -->
+  <div class="section-title"><div class="dot" style="background:#111;"></div><h2>Comparativa — Servidor Local (T1–T6) vs. AWS Cloud (T7 Producción)</h2></div>
+  <div class="card">
+    <table class="comp-table">
+      <thead><tr><th>Aspecto</th><th>Servidor Local (PC 1)</th><th>Fases</th><th>AWS Cloud</th><th>Fases</th><th>Recomendación</th></tr></thead>
+      <tbody>
+        <tr><td style="font-weight:600;">Costo mensual</td><td class="mono">$0</td><td style="color:#888;font-size:.7rem;">T1–T6</td><td class="mono">~$113.400</td><td style="color:#888;font-size:.7rem;">T7+</td><td style="font-size:.72rem;color:#555;">Local para dev · AWS para producción</td></tr>
+        <tr><td style="font-weight:600;">Disponibilidad</td><td style="font-size:.75rem;">~95% (depende de luz/internet)</td><td style="color:#888;font-size:.7rem;">T1–T6</td><td style="font-size:.75rem;">99.9% SLA garantizado</td><td style="color:#888;font-size:.7rem;">T7+</td><td style="font-size:.72rem;color:#555;">AWS obligatorio en producción</td></tr>
+        <tr><td style="font-weight:600;">Configuración</td><td style="font-size:.75rem;">Manual: Ubuntu + Nginx + MySQL</td><td style="color:#888;font-size:.7rem;">T3</td><td style="font-size:.75rem;">Consola AWS (30 min)</td><td style="color:#888;font-size:.7rem;">T7</td><td style="font-size:.72rem;color:#555;">Local = aprendizaje técnico real</td></tr>
+        <tr><td style="font-weight:600;">Escalabilidad</td><td style="font-size:.75rem;">Limitada por specs del PC</td><td>—</td><td style="font-size:.75rem;">Ilimitada (auto-scaling)</td><td>—</td><td style="font-size:.72rem;color:#555;">AWS para crecimiento</td></tr>
+        <tr><td style="font-weight:600;">SSL/HTTPS</td><td style="font-size:.75rem;">Let's Encrypt (gratis · auto-renovación)</td><td style="color:#888;font-size:.7rem;">T5</td><td style="font-size:.75rem;">AWS ACM (gratis con CloudFront)</td><td style="color:#888;font-size:.7rem;">T7</td><td style="font-size:.72rem;color:#555;">Gratis en ambos</td></tr>
+        <tr><td style="font-weight:600;">Backup</td><td style="font-size:.75rem;">Script bash + cron diario 2 AM</td><td style="color:#888;font-size:.7rem;">T4+</td><td style="font-size:.75rem;">Automático RDS (point-in-time)</td><td style="color:#888;font-size:.7rem;">T7</td><td style="font-size:.72rem;color:#555;">AWS más confiable en producción</td></tr>
+        <tr><td style="font-weight:600;">Monitoreo</td><td style="font-size:.75rem;">htop · tail -f logs (manual)</td><td style="color:#888;font-size:.7rem;">T3+</td><td style="font-size:.75rem;">AWS CloudWatch (automático)</td><td style="color:#888;font-size:.7rem;">T7</td><td style="font-size:.72rem;color:#555;">CloudWatch para producción</td></tr>
+        <tr style="background:#1a1a1a;"><td colspan="6" style="color:#ccc;font-weight:700;font-size:.75rem;padding:.55rem .85rem;">→ Estrategia: Desarrollar y probar en servidor local (T1–T6) → Migrar a AWS en T7 para el despliegue final en producción</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Backup plan -->
+  <div class="section-title"><div class="dot" style="background:#111;"></div><h2>Plan de Backup — Estrategia de respaldo del servidor</h2></div>
+  <div class="card">
+    <table class="tbl">
+      <thead><tr><th>#</th><th>Tipo</th><th>Qué se respalda</th><th>Frecuencia</th><th>Destino</th><th>Fase</th></tr></thead>
+      <tbody>
+        <tr><td class="zero" style="font-size:.7rem;">1</td><td style="font-weight:600;">Base de datos MySQL</td><td style="font-size:.75rem;">Productos, ventas, usuarios, inventario, caja, pedidos</td><td style="font-size:.75rem;font-family:'JetBrains Mono',monospace;">Diario 2:00 AM</td><td style="font-size:.72rem;color:#666;">HDD local + copia en PC 2</td><td style="font-size:.7rem;color:#888;">T4+</td></tr>
+        <tr><td class="zero" style="font-size:.7rem;">2</td><td style="font-weight:600;">Archivos / Uploads</td><td style="font-size:.75rem;">Imágenes de productos, archivos de configuración</td><td style="font-size:.75rem;font-family:'JetBrains Mono',monospace;">Diario 2:30 AM</td><td style="font-size:.72rem;color:#666;">HDD local /var/backups/files/</td><td style="font-size:.7rem;color:#888;">T4+</td></tr>
+        <tr><td class="zero" style="font-size:.7rem;">3</td><td style="font-weight:600;">Código fuente</td><td style="font-size:.75rem;">Repositorio Git completo del proyecto Aleyual</td><td style="font-size:.75rem;font-family:'JetBrains Mono',monospace;">Cada commit (push)</td><td style="font-size:.72rem;color:#666;">GitHub / GitLab (nube)</td><td style="font-size:.7rem;color:#888;">T1+</td></tr>
+        <tr><td class="zero" style="font-size:.7rem;">4</td><td style="font-weight:600;">Configuración servidor</td><td style="font-size:.75rem;">Nginx config, MySQL config, PM2, variables .env</td><td style="font-size:.75rem;font-family:'JetBrains Mono',monospace;">Semanal (lunes)</td><td style="font-size:.72rem;color:#666;">Repositorio privado Git</td><td style="font-size:.7rem;color:#888;">T3+</td></tr>
+        <tr><td class="zero" style="font-size:.7rem;">5</td><td style="font-weight:600;">Prueba de restauración</td><td style="font-size:.75rem;">Verificar que el backup funciona restaurando en PC 2</td><td style="font-size:.75rem;font-family:'JetBrains Mono',monospace;">Mensual (Sprint Review)</td><td style="font-size:.72rem;color:#666;">PC 2 — entorno de prueba</td><td style="font-size:.7rem;color:#888;">T5+</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>
+
+
+<div class="tab-pane" id="pane-infra2">
+  <div class="card">
+    <div class="card-hdr"><h2>Infraestructura Técnica — Servidor Local (PC3) en la tienda</h2></div>
+  </div>
+  <div class="infra2-grid" id="infra2-a"></div>
+  <div class="infra2-grid" id="infra2-b"></div>
+  <div class="infra2-grid" id="infra2-c"></div>
+  <div class="infra2-grid" id="infra2-d"></div>
+  <div class="card">
+    <div class="card-hdr"><h2>Notas importantes</h2></div>
+    <table class="tbl"><tbody>
+      <tr><td style="font-size:.75rem;">🏪 Este servidor es FÍSICO y LOCAL — vive dentro del Autoservicio Aleyual, a diferencia de soluciones 100% en la nube.</td></tr>
+      <tr><td style="font-size:.75rem;">✓ Ventaja: control total de los datos, sin dependencia de internet para operar internamente.</td></tr>
+      <tr><td style="font-size:.75rem;">⚠️ Desventaja: requiere mantenimiento físico (UPS, backups) y no es accesible remotamente sin VPN.</td></tr>
+    </tbody></table>
+  </div>
+</div>
+
+<div class="tab-pane" id="pane-fuentes2">
+  <div class="card">
+    <div class="card-hdr"><h2>Fuentes Verificadas — Salarios, Cloud, Legal y Hardware</h2><span class="badge">Jun 2026</span></div>
+    <div style="padding:.7rem 1rem;font-size:.74rem;color:#666;background:#fafafa;border-bottom:1px solid #eee;">
+      Toda la información fue verificada directamente en las páginas oficiales de cada fuente.
+    </div>
+  </div>
+  <div class="fsrc-grid" id="fsrc-a"></div>
+  <div class="fsrc-grid" id="fsrc-b"></div>
+</div>
+
+<footer class="footer">
+  <p><strong>Aleyual — Control Store</strong> · Autoservicio Aleyual, Bogotá · Proyecto ADSO SENA</p>
+  <p>Costo total: <strong>$237.938.772</strong> · Jun 2026</p>
+</footer>
+</div>
+
+<script>
+const TD=585,NM=20,TODAY=99;
+const ML=['Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic','Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep'];
+const YR=['26','26','26','26','26','26','26','26','26','26','26','27','27','27','27','27','27','27','27','27'];
+const BRK=[{s:58,e:68},{s:146,e:164},{s:251,e:255},{s:320,e:339},{s:416,e:427},{s:519,e:537}];
+const BRK_INFO=[
+  {label:'Semana Santa 2026',dates:'2–12 abr 2026',days:11,icon:'🌿'},
+  {label:'Vacaciones mitad año 2026',dates:'29 jun–17 jul 2026',days:19,icon:'☀️'},
+  {label:'Preparación Trimestre 4',dates:'12–16 oct 2026',days:5,icon:'📚'},
+  {label:'Navidad 2026–2027',dates:'20 dic–8 ene 2027',days:20,icon:'🎄'},
+  {label:'Semana Santa 2027',dates:'26 mar–6 abr 2027',days:12,icon:'🌿'},
+  {label:'Vacaciones mitad año 2027',dates:'7–25 jul 2027',days:19,icon:'🏖️'},
+];
+const PHASES=[
+  {id:1,label:'T1 — Especificación de Requisitos',dates:'2 Feb–27 Mar 2026',tasks:[
+    {id:'1.1',label:'Analizar datos y necesidades del cliente',ev:'Doc. de Análisis',resp:'Analista',s:0,e:26,pct:100},
+    {id:'1.2',label:'Elaborar Diagrama de Procesos',ev:'Diag. de Procesos',resp:'Analista',s:27,e:36,pct:100},
+    {id:'1.3',label:'Informe de Requisitos (IEEE-830)',ev:'Documento IEEE-830',resp:'Analista',s:37,e:53,pct:100},
+  ]},
+  {id:2,label:'T2 — Análisis y Diseño',dates:'13 Abr–3 Jul 2026',tasks:[
+    {id:'2.1',label:'Diagramar los Casos de Uso',ev:'Diag. Casos de Uso',resp:'Arquitecto',s:69,e:89,pct:100},
+    {id:'2.2',label:'Plantillas Casos de Uso Extendido',ev:'CU Extendido',resp:'Arquitecto',s:90,e:112,pct:90},
+    {id:'2.3',label:'Gantt — Estimación de costos',ev:'Cronograma',resp:'Adm.',s:107,e:127,pct:50},
+    {id:'2.4',label:'Control de versiones SCV',ev:'Repositorio Git',resp:'Dev F-S',s:124,e:143,pct:0},
+  ]},
+  {id:3,label:'T3 — Diseño Técnico de Datos',dates:'18 Jul–11 Oct 2026',tasks:[
+    {id:'3.1',label:'Modelo Entidad-Relación / Crows Foot',ev:'MER / Diag. BD',resp:'Gestor BD',s:167,e:181,pct:0},
+    {id:'3.2',label:'Normalización 3FN',ev:'Modelo Norm.',resp:'Gestor BD',s:179,e:193,pct:0},
+    {id:'3.3',label:'Diccionario de Datos',ev:'Diccionario',resp:'Gestor BD',s:191,e:205,pct:0},
+    {id:'3.4',label:'Diagrama de Clases UML',ev:'UML Clases',resp:'Arquitecto',s:202,e:219,pct:0},
+    {id:'3.5',label:'Diagrama de Distribución UML',ev:'UML Despliegue',resp:'Arquitecto',s:216,e:230,pct:0},
+    {id:'3.6',label:'Prototipo navegable HTML/CSS/JS',ev:'Prototipo Web',resp:'Dev F-S',s:225,e:242,pct:0},
+    {id:'3.7',label:'SCV — commits y ramas',ev:'Repositorio Git',resp:'Dev F-S',s:239,e:248,pct:0},
+  ]},
+  {id:4,label:'T4 — Desarrollo BD y Frontend',dates:'19 Oct 2026–22 Ene 2027',tasks:[
+    {id:'4.1',label:'Base de Datos DDL (SQL)',ev:'Script DDL',resp:'Gestor BD',s:258,e:273,pct:0},
+    {id:'4.2',label:'Script DML — Joins/subconsultas',ev:'Script DML',resp:'Gestor BD',s:271,e:285,pct:0},
+    {id:'4.3',label:'Seguridad BD — bcrypt/sha256',ev:'Encriptación',resp:'Gestor BD',s:283,e:300,pct:0},
+    {id:'4.4',label:'Frontend React + JWT Auth',ev:'Aplicación Web',resp:'Dev F-S',s:296,e:340,pct:0},
+    {id:'4.5',label:'SCV — historial de versiones',ev:'Repositorio Git',resp:'Dev F-S',s:340,e:348,pct:0},
+  ]},
+  {id:5,label:'T5 — Integración API REST',dates:'27 Ene–2 Abr 2027',tasks:[
+    {id:'5.1',label:'API REST + JWT + CORS + Postman',ev:'Documentación API',resp:'Dev Back',s:349,e:372,pct:0},
+    {id:'5.2',label:'Frontend consume API (80% avance)',ev:'App Integrada',resp:'Dev F-S',s:368,e:410,pct:0},
+    {id:'5.3',label:'SCV — commits y ramas',ev:'Repositorio Git',resp:'Dev F-S',s:406,e:416,pct:0},
+  ]},
+  {id:6,label:'T6 — App Móvil y Cierre Frontend',dates:'7 Abr–7 Jul 2027',tasks:[
+    {id:'6.1',label:'Solución web 100% completa',ev:'App Completa',resp:'Dev F-S',s:442,e:462,pct:0},
+    {id:'6.2',label:'API REST documentada (Swagger)',ev:'Swagger Docs',resp:'Dev Back',s:458,e:477,pct:0},
+    {id:'6.3',label:'App móvil — metodología ágil',ev:'Sprint Backlog',resp:'Dev F-S',s:471,e:498,pct:0},
+    {id:'6.4',label:'App móvil consume API REST',ev:'App Móvil',resp:'Dev F-S',s:493,e:514,pct:0},
+    {id:'6.5',label:'SCV — entrega trimestral',ev:'Repositorio Git',resp:'Dev F-S',s:511,e:518,pct:0},
+  ]},
+  {id:7,label:'T7 — Pruebas, Calidad y Despliegue',dates:'28 Jul–11 Sep 2027',tasks:[
+    {id:'7.1',label:'Pruebas de software',ev:'Casos de Prueba',resp:'Tester',s:540,e:552,pct:0},
+    {id:'7.2',label:'Planes instalación y respaldo',ev:'Plan Despliegue',resp:'Adm.',s:549,e:560,pct:0},
+    {id:'7.3',label:'Calidad ISO/IEC 25010',ev:'Informe Calidad',resp:'Tester',s:558,e:568,pct:0},
+    {id:'7.4',label:'Manuales técnico y usuario',ev:'Manuales',resp:'Tester',s:564,e:575,pct:0},
+    {id:'7.5',label:'Despliegue en servidores',ev:'Diag. Arquit.',resp:'Arquitecto',s:571,e:582,pct:0},
+    {id:'7.6',label:'SCV — entrega final',ev:'Repositorio Git',resp:'Dev F-S',s:579,e:585,pct:0},
+  ]},
+];
+const RRHH=[
+  {item:1,role:'Arquitecto de Software',n:1,sal:5500000,hpd:8,dias:160,vd:183333,vh:22917,sr:29333280},
+  {item:2,role:'Administrador Proyecto',n:1,sal:4800000,hpd:8,dias:280,vd:160000,vh:20000,sr:44800000},
+  {item:3,role:'Analista',n:2,sal:3000000,hpd:6,dias:45,vd:100000,vh:16667,sr:9000000},
+  {item:4,role:'Gestor de Bases de Datos',n:1,sal:4000000,hpd:5,dias:80,vd:133333,vh:26667,sr:10666640},
+  {item:5,role:'Desarrollador Web',n:1,sal:3800000,hpd:8,dias:200,vd:126667,vh:15833,sr:25333400},
+  {item:6,role:'Desarrollador Backend',n:3,sal:4200000,hpd:8,dias:90,vd:140000,vh:17500,sr:37800000},
+  {item:7,role:'Tester',n:1,sal:3200000,hpd:8,dias:45,vd:106667,vh:13333,sr:4800015},
+];
+
+function fmt(n){return n>0?'$'+Math.round(n).toLocaleString('es-CO'):'—';}
+function d2f(d){return(d/TD)*NM;}
+
+function tb(id,btn){
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('pane-'+id).classList.add('active');
+}
+
+// GANTT
+function buildGantt(){
+  const root=document.getElementById('gantt-root');
+  let h='<div class="g-wrap">';
+  h+=`<div class="g-head"><div class="g-hc lbl">Actividad / Evidencia</div><div class="g-hc">Rol</div><div class="g-hc">✓</div><div class="g-hc">%</div>`;
+  ML.forEach((m,i)=>h+=`<div class="g-hc">${m}<br><span style="opacity:.45;font-size:.5rem">'${YR[i]}</span></div>`);
+  h+='</div>';
+  PHASES.forEach((ph,pi)=>{
+    h+=`<div class="g-phase"><div class="g-ph-lbl"><span style="width:7px;height:7px;background:#111;border-radius:50%;opacity:${.3+pi*.1};flex-shrink:0;"></span>T${ph.id} — ${ph.label.replace(/^T\d — /,'')} <span style="font-size:.58rem;color:#aaa;font-weight:400;">${ph.dates}</span></div>`;
+    for(let m=0;m<NM;m++){
+      const inB=BRK.some(b=>d2f(b.s)<m+1&&d2f(b.e)>m);
+      h+=`<div class="g-bc" style="${inB?'background:repeating-linear-gradient(45deg,#f0f0f0,#f0f0f0 3px,#e8e8e8 3px,#e8e8e8 6px)':'background:#ebebeb'};">`
+      if(Math.abs(d2f(TODAY)-m)<0.5)h+=`<div class="tod-ln" style="left:${((d2f(TODAY)-m))*100}%;"></div>`;
+      h+='</div>';
+    }
+    h+='</div>';
+    ph.tasks.forEach(t=>{
+      const taskId=`T${ph.id}_${t.id}`;
+      h+=`<div class="g-task" data-task="${taskId}"><div class="g-tlbl"><div class="g-tid">${t.id}</div><div class="g-tnm">${t.label}</div><div class="g-tev">${t.ev}</div></div>`;
+      h+=`<div class="g-tresp"><div class="rchip">${t.resp}</div></div>`;
+      h+=`<div style="display:flex;align-items:center;justify-content:center;border-right:1px solid #eee;"><input type="checkbox" class="g-check" data-id="${taskId}" onchange="onGCheckChange('${taskId}',this.checked)"></div>`;
+      h+=`<div class="g-tpct"><input type="number" min="0" max="100" class="g-pct-input" data-id="${taskId}" value="${t.pct}" oninput="onGPctChange('${taskId}',this.value)"><div class="pct-tr" data-bar="${taskId}"><div class="pct-fi" style="width:${t.pct}%;background:${t.pct===100?'#111':'#888'};"></div></div></div>`;
+      const tsf=d2f(t.s),tef=d2f(t.e),dE=d2f(t.s+(t.e-t.s)*t.pct/100),todF=d2f(TODAY);
+      for(let m=0;m<NM;m++){
+        const cs=m,ce=m+1;
+        const inBar=tsf<ce&&tef>cs;
+        const inDone=t.pct>0&&tsf<ce&&dE>cs;
+        const inBrk=BRK.some(b=>d2f(b.s)<ce&&d2f(b.e)>cs);
+        const showTod=todF>=cs&&todF<ce;
+        let inn='';
+        if(inBar){const bl=Math.max(0,(tsf-cs))*100;const bw=(Math.min(tef,ce)-Math.max(tsf,cs))*100;inn+=`<div class="bar" style="left:${bl}%;width:${bw}%;background:#ccc;opacity:.5;"></div>`;}
+        if(inDone){const bl=Math.max(0,(tsf-cs))*100;const bw=(Math.min(dE,ce)-Math.max(tsf,cs))*100;inn+=`<div class="bar" data-fillbar="${taskId}" style="left:${bl}%;width:${bw}%;background:#111;"></div>`;}
+        if(inBrk)inn+=`<div class="brk-bg"></div>`;
+        if(showTod)inn+=`<div class="tod-ln" style="left:${(todF-cs)*100}%;"></div>`;
+        h+=`<div class="g-bc" style="background:${inBrk?'#f5f5f5':'#fff'};">${inn}</div>`;
+      }
+      h+='</div>';
+    });
+  });
+  h+='</div>';
+  root.innerHTML=h;
+  document.getElementById('brk-root').innerHTML=BRK_INFO.map(b=>`
+    <div class="brk-card"><div class="brk-icon">${b.icon}</div><div class="brk-b"><strong>${b.label}</strong><span>${b.dates}</span><em>${b.days} días · no facturados</em></div></div>`).join('');
+  loadGanttProgress();
+}
+
+// ── PERSISTENCIA DE PROGRESO DEL GANTT PRINCIPAL ─────────────────────
+const G_STORAGE_KEY='aleyual_gantt_progress_v1';
+function getAllGTaskIds(){
+  const ids=[];
+  PHASES.forEach(ph=>ph.tasks.forEach(t=>ids.push(`T${ph.id}_${t.id}`)));
+  return ids;
+}
+function loadGanttProgress(){
+  let data={};
+  try{ data=JSON.parse(localStorage.getItem(G_STORAGE_KEY)||'{}'); }catch(e){ data={}; }
+  getAllGTaskIds().forEach(id=>{
+    if(data[id]===undefined) return; // mantiene el valor inicial definido en PHASES si no hay override guardado
+    const pct=data[id];
+    const inp=document.querySelector(`input.g-pct-input[data-id="${id}"]`);
+    const chk=document.querySelector(`input.g-check[data-id="${id}"]`);
+    if(inp) inp.value=pct;
+    if(chk) chk.checked = pct>=100;
+    const barWrap=document.querySelector(`[data-bar="${id}"]`);
+    if(barWrap){ const fill=barWrap.querySelector('.pct-fi'); if(fill){ fill.style.width=pct+'%'; fill.style.background = pct>=100?'#111':'#888'; } }
+  });
+  // Inicializar checkboxes según el valor visible actual (inicial o guardado)
+  getAllGTaskIds().forEach(id=>{
+    const inp=document.querySelector(`input.g-pct-input[data-id="${id}"]`);
+    const chk=document.querySelector(`input.g-check[data-id="${id}"]`);
+    if(inp && chk) chk.checked = parseInt(inp.value)>=100;
+  });
+  updateGOverall();
+}
+function saveGProgress(id,pct){
+  let data={};
+  try{ data=JSON.parse(localStorage.getItem(G_STORAGE_KEY)||'{}'); }catch(e){ data={}; }
+  data[id]=pct;
+  localStorage.setItem(G_STORAGE_KEY, JSON.stringify(data));
+}
+function onGPctChange(id,val){
+  let pct=Math.max(0,Math.min(100,parseInt(val)||0));
+  saveGProgress(id,pct);
+  const chk=document.querySelector(`input.g-check[data-id="${id}"]`);
+  if(chk) chk.checked = pct>=100;
+  const barWrap=document.querySelector(`[data-bar="${id}"]`);
+  if(barWrap){ const fill=barWrap.querySelector('.pct-fi'); if(fill){ fill.style.width=pct+'%'; fill.style.background = pct>=100?'#111':'#888'; } }
+  updateGOverall();
+}
+function onGCheckChange(id,checked){
+  const pct = checked?100:0;
+  saveGProgress(id,pct);
+  const inp=document.querySelector(`input.g-pct-input[data-id="${id}"]`);
+  if(inp) inp.value=pct;
+  const barWrap=document.querySelector(`[data-bar="${id}"]`);
+  if(barWrap){ const fill=barWrap.querySelector('.pct-fi'); if(fill){ fill.style.width=pct+'%'; fill.style.background = pct>=100?'#111':'#888'; } }
+  updateGOverall();
+}
+function updateGOverall(){
+  const ids=getAllGTaskIds();
+  let sum=0,total=0;
+  ids.forEach(id=>{
+    const inp=document.querySelector(`input.g-pct-input[data-id="${id}"]`);
+    if(inp){ sum+=parseInt(inp.value)||0; total++; }
+  });
+  const avg=total>0?Math.round(sum/total):0;
+  const elPct=document.getElementById('go-pct2');
+  const elBar=document.getElementById('go-bar2');
+  if(elPct) elPct.textContent=avg+'%';
+  if(elBar) elBar.style.width=avg+'%';
+}
+function resetProgress2(){
+  if(!confirm('¿Reiniciar todo el avance del proyecto a los valores originales? Esta acción no se puede deshacer.')) return;
+  localStorage.removeItem(G_STORAGE_KEY);
+  buildGantt();
+}
+
+// RRHH TABLE
+function buildRRHH(){
+  const tot=RRHH.reduce((s,r)=>s+r.sr,0);
+  document.getElementById('rrhh-tbody').innerHTML=
+    RRHH.map((r,i)=>`<tr>
+      <td style="font-size:.7rem;color:#aaa;">${r.item}</td>
+      <td style="font-weight:500;">${r.role}</td>
+      <td class="r">${r.n}</td>
+      <td class="r mono">${fmt(r.sal)}</td>
+      <td class="r">30</td>
+      <td class="r mono" style="color:#666;">${fmt(r.vd)}</td>
+      <td class="r">${r.hpd}</td>
+      <td class="r mono" style="color:#666;">${fmt(r.vh)}</td>
+      <td class="r">${r.dias}</td>
+      <td class="r mono">${fmt(r.sr)}</td>
+    </tr>`).join('')+
+    `<tr class="sub-row"><td colspan="2">PARCIAL</td><td colspan="7"></td><td class="r mono">${fmt(tot)}</td></tr>`;
+}
+
+buildGantt(); buildRRHH();
+
+// ── SERVER & EQUIPMENT DATA ────────────────────────────────────────
+const PC1_PARTS = [
+  {num:"1",comp:"Procesador (CPU)",spec:"Intel Core i5-12400  ·  6C/12T  ·  2.5–4.4 GHz  ·  18 MB caché LGA1700",precio:780000,prio:"Crítico"},
+  {num:"2",comp:"Tarjeta madre",spec:"ASUS Prime B660M-A DDR4  ·  Micro-ATX  ·  LGA1700  ·  4 slots RAM",precio:520000,prio:"Crítico"},
+  {num:"3",comp:"Memoria RAM",spec:"32 GB DDR4 3200 MHz  ·  Kingston Fury Beast  ·  2×16 GB",precio:700000,prio:"Crítico"},
+  {num:"4",comp:"SSD (Sistema OS)",spec:"500 GB Kingston NV2 NVMe M.2  ·  Lectura 3.500 MB/s",precio:220000,prio:"Crítico"},
+  {num:"5",comp:"HDD (Datos / BD)",spec:"2 TB Seagate Barracuda 3.5\\\"  ·  SATA  ·  7.200 RPM",precio:260000,prio:"Crítico"},
+  {num:"6",comp:"Fuente de poder",spec:"Corsair CV650  ·  650W  ·  80+ Bronze  ·  OVP/OCP/SCP",precio:290000,prio:"Crítico"},
+  {num:"7",comp:"Gabinete",spec:"Fractal Design Core 1100  ·  Mini-Tower  ·  Silencioso",precio:280000,prio:"Alto"},
+  {num:"8",comp:"UPS / Regulador",spec:"APC Back-UPS 850VA/480W  ·  USB  ·  8 min autonomía  ·  10 tomas",precio:680000,prio:"Crítico"},
+  {num:"9",comp:"Cable Ethernet CAT-6",spec:"5 m  +  adaptador USB Gigabit (si se requiere)",precio:80000,prio:"Crítico"},
+  {num:"10",comp:"Monitor 24\" (setup)",spec:"LG 24MK430H  ·  FHD IPS  ·  75Hz  ·  Solo config. inicial",precio:650000,prio:"Opcional"},
+  {num:"11",comp:"Teclado + Mouse (setup)",spec:"Logitech MK270 inalámbrico  ·  Solo configuración inicial",precio:120000,prio:"Opcional"},
+];
+const PC2_PARTS = [
+  {num:"1",comp:"Procesador (CPU)",spec:"AMD Ryzen 5 5600  ·  6C/12T  ·  3.5–4.4 GHz  ·  35 MB caché AM4",precio:680000,prio:"Crítico"},
+  {num:"2",comp:"Tarjeta madre",spec:"MSI B550-A PRO  ·  ATX  ·  AM4  ·  4 slots DDR4  ·  PCIe 4.0",precio:480000,prio:"Crítico"},
+  {num:"3",comp:"Memoria RAM",spec:"16 GB DDR4 3200 MHz  ·  Kingston Fury Beast  ·  2×8 GB",precio:360000,prio:"Crítico"},
+  {num:"4",comp:"SSD NVMe 1 TB",spec:"Kingston NV2 M.2 NVMe  ·  Lectura 3.500 MB/s  ·  OS + proyectos",precio:320000,prio:"Crítico"},
+  {num:"5",comp:"Fuente de poder",spec:"Thermaltake Smart 600W  ·  80+ Bronze  ·  ATX",precio:240000,prio:"Crítico"},
+  {num:"6",comp:"Gabinete",spec:"Thermaltake Versa H17  ·  Micro-ATX  ·  Panel lateral",precio:160000,prio:"Medio"},
+  {num:"7",comp:"Monitor 24\" FHD",spec:"LG 24MK430H  ·  FHD 1080p IPS  ·  75Hz  ·  HDMI",precio:660000,prio:"Crítico"},
+  {num:"8",comp:"Teclado",spec:"Logitech K280e Pro USB  ·  Teclas silenciosas  ·  Ergonómico",precio:100000,prio:"Alto"},
+  {num:"9",comp:"Mouse",spec:"Logitech M100 USB  ·  Simétrico  ·  1.000 DPI  ·  Plug & Play",precio:50000,prio:"Alto"},
+  {num:"10",comp:"UPS / Regulador",spec:"Forza NT-751  ·  750VA/375W  ·  6 tomas  ·  Protección picos",precio:380000,prio:"Alto"},
+  {num:"11",comp:"Audífonos + Micrófono",spec:"HyperX Cloud Stinger  ·  USB  ·  Micrófono integrado",precio:230000,prio:"Medio"},
+  {num:"12",comp:"Webcam HD",spec:"Logitech C270  ·  720p HD  ·  USB  ·  Clip monitor",precio:180000,prio:"Medio"},
+];
+const SW_STACK = [
+  {name:"Ubuntu Server 24.04 LTS",ver:"LTS — soporte hasta 2034",fn:"Sistema operativo base. Gestiona recursos, red, seguridad y procesos del servidor.",cmd:"iso → ubuntu.com/download/server"},
+  {name:"Nginx 1.26",ver:"Servidor web / Reverse proxy",fn:"Recibe HTTPS → redirige a Node.js:3000. Sirve el build React del frontend.",cmd:"sudo apt install nginx"},
+  {name:"Node.js 20 LTS",ver:"Runtime JavaScript (V8)",fn:"Ejecuta la API REST Express.js. Gestiona rutas, lógica de negocio y JWT.",cmd:"nodesource.com/setup_20.x"},
+  {name:"MySQL 8.0",ver:"SGBD Relacional ACID",fn:"Almacena: productos, ventas, inventario, usuarios, caja y pedidos.",cmd:"sudo apt install mysql-server"},
+  {name:"PM2 v5",ver:"Process Manager Node.js",fn:"Mantiene la API corriendo 24/7. Auto-reinicia si falla. Logs centralizados.",cmd:"sudo npm install -g pm2"},
+  {name:"UFW Firewall",ver:"Uncomplicated Firewall",fn:"Solo permite puertos 22, 80 y 443. Bloquea todo lo demás automáticamente.",cmd:"sudo apt install ufw"},
+  {name:"Fail2Ban",ver:"Anti-fuerza bruta",fn:"Banea IPs con 5+ intentos fallidos en 10 min. Protege SSH y login de la API.",cmd:"sudo apt install fail2ban"},
+  {name:"OpenSSH Server",ver:"Acceso remoto seguro",fn:"Acceso al servidor desde PC 2 via terminal: ssh ubuntu@192.168.1.100",cmd:"sudo apt install openssh-server"},
+  {name:"Certbot",ver:"Let's Encrypt SSL/TLS",fn:"Certificado HTTPS gratuito. Auto-renovación cada 90 días. Candado verde.",cmd:"sudo apt install certbot"},
+  {name:"Git 2.x",ver:"Control de versiones",fn:"El servidor hace git pull para actualizar el código desde el repositorio del equipo.",cmd:"sudo apt install git"},
+];
+const NET_CONFIG = [
+  {label:"IP Servidor (estática)",val:"192.168.1.100",desc:"IP fija local asignada en el router. Nunca cambia. El equipo se conecta siempre a esta dirección."},
+  {label:"Gateway / Router",val:"192.168.1.1",desc:"Puerta de enlace para salida a internet. Donde se configura el port forwarding."},
+  {label:"DNS Primario",val:"8.8.8.8",desc:"Google DNS para resolución de nombres. Alternativa: 1.1.1.1 (Cloudflare)."},
+  {label:"Puerto HTTP",val:":80  →  :443",desc:"Nginx redirige todo HTTP a HTTPS automáticamente. No exponer contenido sin cifrar."},
+  {label:"Puerto HTTPS",val:":443  ABIERTO",desc:"Tráfico SSL/TLS cifrado. Nginx sirve React y redirige /api/* hacia Node.js:3000."},
+  {label:"Puerto API Node.js",val:":3000  CERRADO",desc:"Solo accesible desde localhost. NUNCA exponer al exterior directamente."},
+  {label:"Puerto MySQL",val:":3306  CERRADO",desc:"Solo accesible desde localhost (127.0.0.1). NUNCA abierto al exterior."},
+  {label:"Puerto SSH",val:":22  RED LOCAL",desc:"Solo habilitado desde la red local (192.168.1.x). Acceso desde PC 2 del equipo."},
+];
+
+function buildServerEquip(){
+  // PC Grid
+  const pg = document.getElementById('pc-grid');
+  if(!pg) return;
+
+  function buildPCTable(parts, title, presupuesta, nota){
+    const sum = parts.reduce((s,p)=>s+p.precio,0);
+    const headerVal = presupuesta ? `$${sum.toLocaleString('es-CO')}` : `Ref: $${sum.toLocaleString('es-CO')}`;
+    const headerBg = presupuesta ? '#1a1a1a' : '#666';
+    return `<div class="pc-card">
+      <div class="pc-card-hdr">
+        <h3>${title}</h3>
+        <span class="budget ok" style="background:${headerBg};">${headerVal}</span>
+      </div>
+      <table class="pc-tbl">
+        <thead><tr><th>#</th><th>Componente</th><th style="text-align:right;">Precio</th><th>Prioridad</th></tr></thead>
+        <tbody>
+          ${parts.map(p=>`<tr>
+            <td style="font-size:.7rem;color:#aaa;">${p.num}</td>
+            <td><span class="comp-name">${p.comp}</span><span class="comp-spec">${p.spec}</span></td>
+            <td class="precio">$${p.precio.toLocaleString('es-CO')}</td>
+            <td><span class="prio-${p.prio.toLowerCase().replace(' ','-')}">${p.prio}</span></td>
+          </tr>`).join('')}
+          <tr style="background:#111;">
+            <td colspan="2" style="font-weight:700;font-size:.77rem;text-align:right;color:#ccc;padding:.55rem .75rem;">VALOR DE MERCADO</td>
+            <td style="font-family:'JetBrains Mono',monospace;font-weight:700;font-size:.82rem;text-align:right;color:#fff;padding:.55rem .75rem;">$${sum.toLocaleString('es-CO')}</td>
+            <td style="font-size:.66rem;color:#aaa;padding:.55rem .5rem;">${nota}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>`;
+  }
+
+  pg.innerHTML =
+    buildPCTable(PC1_PARTS,"PC 3 — Servidor Local Tienda  |  i5-12400 · 32 GB RAM · 2.5 TB  |  YA EXISTE — propiedad de Aleyual",false,"$0 al proyecto — ya es propio") +
+    buildPCTable(PC2_PARTS,"PC 1 y PC 2 — Estaciones de Desarrollo  |  Ryzen 5 5600 · 16 GB RAM · 1 TB  |  TRABAJADORES (idénticas)",false,"$0 compra — solo depreciación");
+
+  const pgNew = document.getElementById('pc-grid-new');
+  if(pgNew) pgNew.innerHTML =
+    buildPCTable(PC2_PARTS,"PC 4 — Trabajador C (NUEVO)  |  Ryzen 5 5600 · 16 GB RAM · 1 TB  |  Solo depreciación 18 meses",false,"$0 compra — solo depreciación") +
+    buildPCTable(PC2_PARTS,"PC 5 — Trabajador D (NUEVO)  |  Ryzen 5 5600 · 16 GB RAM · 1 TB  |  Solo depreciación 18 meses",false,"$0 compra — solo depreciación");
+
+  // Software Stack
+  const sg = document.getElementById('stack-grid');
+  if(sg) sg.innerHTML = SW_STACK.map(s=>`
+    <div class="stack-card">
+      <div class="sw-name">${s.name}</div>
+      <div class="sw-ver">${s.ver}</div>
+      <div class="sw-fn">${s.fn}</div>
+      <code class="sw-cmd">${s.cmd}</code>
+    </div>`).join('');
+
+  // Network
+  const ng = document.getElementById('net-grid');
+  if(ng) ng.innerHTML = NET_CONFIG.map(n=>`
+    <div class="net-card">
+      <div class="nc-label">${n.label}</div>
+      <div class="nc-val">${n.val}</div>
+      <div class="nc-desc">${n.desc}</div>
+    </div>`).join('');
+}
+
+// Hook into tab system
+const _origTb2 = window.tb;
+window.tb = function(id, btn){
+  _origTb2(id, btn);
+  if(id === 'servidor') setTimeout(buildServerEquip, 50);
+};
+
+
+// ── SCRUM DATA ─────────────────────────────────────────────────────
+const BACKLOG_DATA=[
+  {id:"US-01",epic:"Autenticación",rol:"Administrador",hist:"Iniciar sesión con usuario y contraseña segura",sp:5,prio:"Alta",sprint:"Sprint 7",estado:"Pendiente"},
+  {id:"US-02",epic:"Autenticación",rol:"Sistema",hist:"Gestionar roles Admin, Vendedor y Domiciliario",sp:8,prio:"Alta",sprint:"Sprint 7",estado:"Pendiente"},
+  {id:"US-03",epic:"Autenticación",rol:"Administrador",hist:"Crear y gestionar usuarios del sistema",sp:5,prio:"Alta",sprint:"Sprint 8",estado:"Pendiente"},
+  {id:"US-04",epic:"Inventario",rol:"Administrador",hist:"Registrar productos con nombre, precio, stock y categoría",sp:5,prio:"Alta",sprint:"Sprint 8",estado:"Pendiente"},
+  {id:"US-05",epic:"Inventario",rol:"Vendedor",hist:"Buscar productos por nombre o código de barras",sp:3,prio:"Alta",sprint:"Sprint 9",estado:"Pendiente"},
+  {id:"US-06",epic:"Inventario",rol:"Administrador",hist:"Actualizar el stock de productos manualmente",sp:3,prio:"Media",sprint:"Sprint 9",estado:"Pendiente"},
+  {id:"US-07",epic:"Inventario",rol:"Sistema",hist:"Alertar cuando el stock esté por debajo del umbral",sp:2,prio:"Media",sprint:"Sprint 9",estado:"Pendiente"},
+  {id:"US-08",epic:"Inventario",rol:"Administrador",hist:"Gestionar categorías y subcategorías de productos",sp:3,prio:"Media",sprint:"Sprint 8",estado:"Pendiente"},
+  {id:"US-09",epic:"Inventario",rol:"Administrador",hist:"Ver historial de movimientos de inventario",sp:5,prio:"Baja",sprint:"Sprint 10",estado:"Pendiente"},
+  {id:"US-10",epic:"Ventas",rol:"Vendedor",hist:"Agregar productos al carrito de compra",sp:5,prio:"Alta",sprint:"Sprint 9",estado:"Pendiente"},
+  {id:"US-11",epic:"Ventas",rol:"Vendedor",hist:"Procesar una venta y generar recibo imprimible",sp:8,prio:"Alta",sprint:"Sprint 10",estado:"Pendiente"},
+  {id:"US-12",epic:"Ventas",rol:"Vendedor",hist:"Aplicar descuentos a productos o al total",sp:3,prio:"Media",sprint:"Sprint 10",estado:"Pendiente"},
+  {id:"US-13",epic:"Ventas",rol:"Sistema",hist:"Calcular IVA automáticamente según categoría",sp:3,prio:"Alta",sprint:"Sprint 9",estado:"Pendiente"},
+  {id:"US-14",epic:"Ventas",rol:"Vendedor",hist:"Ver historial de ventas del turno actual",sp:3,prio:"Media",sprint:"Sprint 10",estado:"Pendiente"},
+  {id:"US-15",epic:"Caja",rol:"Administrador",hist:"Abrir y cerrar la caja diaria con monto inicial",sp:5,prio:"Alta",sprint:"Sprint 11",estado:"Pendiente"},
+  {id:"US-16",epic:"Caja",rol:"Administrador",hist:"Registrar entradas y salidas de dinero con motivo",sp:5,prio:"Alta",sprint:"Sprint 11",estado:"Pendiente"},
+  {id:"US-17",epic:"Caja",rol:"Administrador",hist:"Ver resumen de caja al cierre del día",sp:5,prio:"Alta",sprint:"Sprint 11",estado:"Pendiente"},
+  {id:"US-18",epic:"Domicilios",rol:"Cliente WhatsApp",hist:"Hacer un pedido de domicilio por WhatsApp (chatbot)",sp:13,prio:"Alta",sprint:"Sprint 12",estado:"Pendiente"},
+  {id:"US-19",epic:"Domicilios",rol:"Domiciliario",hist:"Ver los pedidos de domicilio asignados a mí",sp:5,prio:"Alta",sprint:"Sprint 12",estado:"Pendiente"},
+  {id:"US-20",epic:"Domicilios",rol:"Administrador",hist:"Gestionar y asignar pedidos de domicilio al personal",sp:8,prio:"Alta",sprint:"Sprint 12",estado:"Pendiente"},
+  {id:"US-21",epic:"Domicilios",rol:"Cliente WhatsApp",hist:"Recibir confirmación y seguimiento del pedido por WhatsApp",sp:8,prio:"Media",sprint:"Sprint 12",estado:"Pendiente"},
+  {id:"US-22",epic:"Reportes",rol:"Administrador",hist:"Ver dashboard con métricas clave del negocio",sp:8,prio:"Alta",sprint:"Sprint 11",estado:"Pendiente"},
+  {id:"US-23",epic:"Reportes",rol:"Administrador",hist:"Generar reportes de ventas por período de tiempo",sp:8,prio:"Media",sprint:"Sprint 13",estado:"Pendiente"},
+  {id:"US-24",epic:"Reportes",rol:"Administrador",hist:"Ver reporte de inventario actual con alertas de stock",sp:5,prio:"Media",sprint:"Sprint 13",estado:"Pendiente"},
+  {id:"US-25",epic:"Reportes",rol:"Administrador",hist:"Exportar reportes de ventas e inventario en PDF",sp:5,prio:"Baja",sprint:"Sprint 13",estado:"Pendiente"},
+  {id:"US-26",epic:"App Móvil",rol:"Domiciliario",hist:"Ver pedidos asignados en la app móvil (React Native)",sp:8,prio:"Alta",sprint:"Sprint 13",estado:"Pendiente"},
+  {id:"US-27",epic:"App Móvil",rol:"Domiciliario",hist:"Actualizar el estado del pedido desde la app móvil",sp:5,prio:"Alta",sprint:"Sprint 13",estado:"Pendiente"},
+  {id:"US-28",epic:"App Móvil",rol:"Cliente",hist:"Rastrear el estado del pedido en tiempo real",sp:8,prio:"Media",sprint:"Sprint 14",estado:"Pendiente"},
+  {id:"US-29",epic:"App Móvil",rol:"Administrador",hist:"Acceder al dashboard básico de métricas desde la app",sp:5,prio:"Media",sprint:"Sprint 14",estado:"Pendiente"},
+  {id:"US-30",epic:"App Móvil",rol:"Cliente",hist:"Hacer pedidos de domicilio desde la app móvil",sp:13,prio:"Baja",sprint:"Sprint 14",estado:"Pendiente"},
+];
+const SPRINTS_DATA=[
+  {n:"0",name:"Sprint 0",period:"02 Feb – 06 Mar 2026",goal:"Kickoff: análisis de requisitos, IEEE-830, setup del proyecto",sp:0,acum:0,fase:"Especificación",est:"Completado"},
+  {n:"1",name:"Sprint 1",period:"09 Mar – 01 Abr 2026",goal:"Casos de uso, plantillas extendidas y setup Git/SCV",sp:0,acum:0,fase:"Análisis",est:"Completado"},
+  {n:"2",name:"Sprint 2",period:"13 Abr – 08 May 2026",goal:"Wireframes Figma, prototipos UI y estimación Gantt",sp:0,acum:0,fase:"Diseño",est:"Completado"},
+  {n:"3",name:"Sprint 3",period:"11 May – 05 Jun 2026",goal:"Modelo relacional, diccionario de datos, normalización 3FN",sp:0,acum:0,fase:"Diseño BD",est:"Completado"},
+  {n:"4",name:"Sprint 4",period:"08 Jun – 03 Jul 2026",goal:"Diagramas UML clases + distribución. Prototipo navegable",sp:0,acum:0,fase:"Arquitectura",est:"Completado"},
+  {n:"5",name:"Sprint 5",period:"20 Jul – 14 Ago 2026",goal:"DDL/DML SQL. Seguridad BD: bcrypt y sha256",sp:0,acum:0,fase:"Base de Datos",est:"Completado"},
+  {n:"6",name:"Sprint 6",period:"17 Ago – 09 Oct 2026",goal:"Prototipo navegable completo. Frontend base React + JWT",sp:0,acum:0,fase:"Prototipo",est:"En Progreso"},
+  {n:"7",name:"Sprint 7",period:"19 Oct – 06 Nov 2026",goal:"US-01, US-02 — Autenticación y gestión de roles",sp:13,acum:13,fase:"Desarrollo",est:"Pendiente"},
+  {n:"8",name:"Sprint 8",period:"09 Nov – 04 Dic 2026",goal:"US-03, US-04, US-08 — Usuarios, productos y categorías",sp:13,acum:26,fase:"Desarrollo",est:"Pendiente"},
+  {n:"9",name:"Sprint 9",period:"07 Dic – 18 Dic 2026",goal:"US-05,06,07,10,13 — Inventario y carrito básico",sp:16,acum:42,fase:"Desarrollo",est:"Pendiente"},
+  {n:"10",name:"Sprint 10",period:"09 Ene – 29 Ene 2027",goal:"US-09,11,12,14 — Historial inventario y módulo ventas",sp:19,acum:61,fase:"API/Frontend",est:"Pendiente"},
+  {n:"11",name:"Sprint 11",period:"01 Feb – 05 Mar 2027",goal:"US-15,16,17,22 — Caja completa y dashboard principal",sp:23,acum:84,fase:"API/Frontend",est:"Pendiente"},
+  {n:"12",name:"Sprint 12",period:"21 Abr – 23 May 2027",goal:"US-18,19,20,21 — Módulo domicilios y chatbot WhatsApp",sp:34,acum:118,fase:"App/Integración",est:"Pendiente"},
+  {n:"13",name:"Sprint 13",period:"26 May – 20 Jun 2027",goal:"US-23,24,25,26,27 — Reportes y app móvil domiciliario",sp:31,acum:149,fase:"App Móvil",est:"Pendiente"},
+  {n:"14",name:"Sprint 14",period:"23 Jun – 18 Jul 2027",goal:"US-28,29,30 — App móvil cliente y rastreo pedidos",sp:26,acum:175,fase:"App Móvil",est:"Pendiente"},
+  {n:"15",name:"Sprint 15",period:"28 Jul – 11 Sep 2027",goal:"QA: Pruebas ISO 25010, despliegue servidores, manuales",sp:0,acum:175,fase:"QA/Deploy",est:"Pendiente"},
+];
+const DOD_DATA=[
+  {n:"1",cat:"Código",crit:"El código pasa tests unitarios (≥ 80% cobertura) y no genera errores en consola ni logs de error."},
+  {n:"2",cat:"Revisión",crit:"La US fue revisada y aprobada en code review por al menos 1 compañero del equipo Dev."},
+  {n:"3",cat:"Integración",crit:"Funcionalidad integrada en la rama main/develop del repositorio Git sin conflictos."},
+  {n:"4",cat:"API",crit:"Endpoints documentados en Postman (T5) y Swagger (T6). Respuestas JSON validadas."},
+  {n:"5",cat:"Base de Datos",crit:"Scripts DDL/DML versionados en Git. Sin datos de prueba en producción. Backups verificados."},
+  {n:"6",cat:"UI/UX",crit:"Interfaz cumple prototipo Figma aprobado. Funciona en Chrome/Firefox a 1280px."},
+  {n:"7",cat:"Seguridad",crit:"Rutas protegidas con JWT. Contraseñas con bcrypt. Sin datos sensibles en frontend."},
+  {n:"8",cat:"Aceptación PO",crit:"Product Owner aprobó la demo en Sprint Review. Todos los criterios de aceptación de la US cumplidos."},
+];
+
+// Kanban board — Sprint 6 (current)
+const KANBAN_COLS=[
+  {label:"Product Backlog",key:"backlog",cards:[
+    {id:"US-07",epic:"Inventario",hist:"Alertas stock bajo umbral",sp:2,prio:"Media"},
+    {id:"US-09",epic:"Inventario",hist:"Historial movimientos inventario",sp:5,prio:"Baja"},
+    {id:"US-10",epic:"Ventas",hist:"Carrito de compra",sp:5,prio:"Alta"},
+    {id:"US-11",epic:"Ventas",hist:"Procesar venta y recibo",sp:8,prio:"Alta"},
+  ]},
+  {label:"Sprint Backlog",key:"sprint",cards:[
+    {id:"US-01",epic:"Autenticación",hist:"Login con JWT",sp:5,prio:"Alta"},
+    {id:"US-02",epic:"Autenticación",hist:"Gestión de roles",sp:8,prio:"Alta"},
+    {id:"US-04",epic:"Inventario",hist:"Registrar productos",sp:5,prio:"Alta"},
+  ]},
+  {label:"En Progreso",key:"progress",cards:[
+    {id:"US-03",epic:"Autenticación",hist:"Gestión de usuarios",sp:5,prio:"Alta"},
+    {id:"US-08",epic:"Inventario",hist:"Categorías de productos",sp:3,prio:"Media"},
+  ]},
+  {label:"Completado ✓",key:"done",cards:[
+    {id:"US-planeacion",epic:"Planeación",hist:"IEEE-830 + Casos de Uso",sp:0,prio:"Alta"},
+    {id:"US-disenio",epic:"Diseño",hist:"Modelo BD + UML + Prototipo",sp:0,prio:"Alta"},
+    {id:"US-ddl",epic:"Desarrollo BD",hist:"DDL/DML + Seguridad BD",sp:0,prio:"Alta"},
+  ]},
+];
+
+function buildScrumComponents(){
+  // KANBAN
+  const kb=document.getElementById('kanban-board');
+  if(kb) kb.innerHTML=KANBAN_COLS.map(col=>`
+    <div class="kboard">
+      <div class="kboard-hdr">${col.label}<span class="kcount">${col.cards.length}</span></div>
+      <div class="kboard-body">
+        ${col.cards.map(c=>`
+          <div class="kcard">
+            <div class="kc-id">${c.id}</div>
+            <div class="kc-hist">${c.hist}</div>
+            <div class="kc-meta">
+              ${c.sp>0?`<span class="kc-sp">${c.sp} SP</span>`:''}
+              <span class="kc-epic">${c.epic}</span>
+              ${c.prio!='—'?`<span class="kc-prio prio-${c.prio.toLowerCase()}">${c.prio}</span>`:''}
+            </div>
+          </div>`).join('')}
+      </div>
+    </div>`).join('');
+
+  // SPRINT TABLE
+  const st=document.getElementById('sprint-table');
+  if(st) st.innerHTML=`
+    <thead><tr><th>#</th><th>Sprint</th><th>Período</th><th>Objetivo</th><th class="r">SP</th><th class="r">Acum.</th><th>Fase</th><th>Estado</th></tr></thead>
+    <tbody>${SPRINTS_DATA.map(s=>`
+      <tr class="${s.est=='Completado'?'s-done':s.est=='En Progreso'?'s-prog':''}">
+        <td style="font-size:.7rem;color:#aaa;font-weight:700;">${s.n}</td>
+        <td style="font-weight:600;">${s.name}</td>
+        <td style="font-size:.72rem;color:#666;">${s.period}</td>
+        <td style="font-size:.75rem;">${s.goal}</td>
+        <td class="r mono">${s.sp>0?s.sp:'—'}</td>
+        <td class="r mono" style="color:#555;">${s.acum>0?s.acum:'—'}</td>
+        <td style="font-size:.72rem;color:#555;">${s.fase}</td>
+        <td><span class="${s.est=='Completado'?'est-done':s.est=='En Progreso'?'est-prog':'est-pend'}">${s.est}</span></td>
+      </tr>`).join('')}</tbody>`;
+
+  // BACKLOG TABLE
+  const bt=document.getElementById('backlog-table');
+  if(bt) bt.innerHTML=`
+    <thead><tr><th>ID</th><th>Épica</th><th>Historia de Usuario</th><th class="r">SP</th><th>Prioridad</th><th>Sprint</th><th>Estado</th></tr></thead>
+    <tbody>
+      ${BACKLOG_DATA.map((us,i)=>`<tr>
+        <td style="font-family:'JetBrains Mono',monospace;font-size:.7rem;font-weight:700;">${us.id}</td>
+        <td style="font-size:.72rem;font-weight:600;color:#555;">${us.epic}</td>
+        <td><span style="font-size:.7rem;color:#888;font-style:italic;">Como ${us.rol}, </span><span style="font-size:.77rem;">quiero ${us.hist}</span></td>
+        <td class="r mono">${us.sp}</td>
+        <td><span class="kc-prio prio-${us.prio.toLowerCase()}">${us.prio}</span></td>
+        <td style="font-size:.72rem;color:#666;">${us.sprint}</td>
+        <td><span class="est-pend">${us.estado}</span></td>
+      </tr>`).join('')}
+      <tr style="background:#111;color:#fff;"><td colspan="3" style="font-weight:700;font-size:.8rem;text-align:right;color:#ccc;">TOTAL</td><td style="font-family:'JetBrains Mono',monospace;font-weight:700;font-size:.9rem;text-align:right;color:#fff;">${BACKLOG_DATA.reduce((s,u)=>s+u.sp,0)}</td><td colspan="3"></td></tr>
+    </tbody>`;
+
+  // DOD
+  const dod=document.getElementById('dod-list');
+  if(dod) dod.innerHTML=DOD_DATA.map(d=>`
+    <div class="dod-item">
+      <div class="dod-n">#${d.n}</div>
+      <h5>${d.cat}</h5>
+      <p>${d.crit}</p>
+    </div>`).join('');
+
+  // BURNDOWN CHART
+  buildBurndown();
+}
+
+function buildBurndown(){
+  const canvas=document.getElementById('burndown-canvas');
+  if(!canvas) return;
+  const W=canvas.offsetWidth||680; const H=200;
+  canvas.width=W; canvas.height=H;
+  const ctx=canvas.getContext('2d');
+  ctx.clearRect(0,0,W,H);
+
+  const sprints=['S0','S1','S2','S3','S4','S5','S6','S7','S8','S9','S10','S11','S12','S13','S14','S15'];
+  const N=sprints.length; // 16 points
+  const TOTAL=175;
+  // Ideal: linear from 175 to 0 over 16 sprints
+  const ideal=sprints.map((_,i)=>TOTAL-(TOTAL/15)*i);
+  // Real: S0-S6 = 175 (no coding), then drops
+  const real=[175,175,175,175,175,175,175,162,149,133,114,91,57,26,0,0];
+
+  const PAD={l:36,r:16,t:16,b:32};
+  const CW=W-PAD.l-PAD.r; const CH=H-PAD.t-PAD.b;
+  const xStep=CW/(N-1);
+  const yScale=CH/TOTAL;
+
+  // Grid lines
+  ctx.strokeStyle='#f0f0f0'; ctx.lineWidth=1;
+  [0,44,88,131,175].forEach(v=>{
+    const y=PAD.t+(TOTAL-v)*yScale;
+    ctx.beginPath(); ctx.moveTo(PAD.l,y); ctx.lineTo(W-PAD.r,y); ctx.stroke();
+    ctx.fillStyle='#bbb'; ctx.font='9px Arial'; ctx.textAlign='right';
+    ctx.fillText(v,PAD.l-4,y+3);
+  });
+
+  // Sprint labels
+  sprints.forEach((s,i)=>{
+    const x=PAD.l+i*xStep;
+    ctx.fillStyle='#bbb'; ctx.font='8px Arial'; ctx.textAlign='center';
+    ctx.fillText(s,x,H-PAD.b+14);
+  });
+
+  // Ideal line
+  ctx.beginPath(); ctx.strokeStyle='#ccc'; ctx.lineWidth=1.5; ctx.setLineDash([5,4]);
+  ideal.forEach((v,i)=>{const x=PAD.l+i*xStep; const y=PAD.t+(TOTAL-v)*yScale; i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);});
+  ctx.stroke(); ctx.setLineDash([]);
+
+  // Real line + fill
+  ctx.beginPath();
+  real.forEach((v,i)=>{const x=PAD.l+i*xStep; const y=PAD.t+(TOTAL-v)*yScale; i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);});
+  ctx.strokeStyle='#111'; ctx.lineWidth=2.5; ctx.stroke();
+
+  // Dots
+  real.forEach((v,i)=>{
+    const x=PAD.l+i*xStep; const y=PAD.t+(TOTAL-v)*yScale;
+    ctx.beginPath(); ctx.arc(x,y,3,0,Math.PI*2);
+    ctx.fillStyle= i<=6?'#aaa':'#111'; ctx.fill();
+  });
+
+  // Today marker (Sprint 6)
+  const todX=PAD.l+6*xStep;
+  ctx.beginPath(); ctx.strokeStyle='#555'; ctx.lineWidth=1; ctx.setLineDash([3,3]);
+  ctx.moveTo(todX,PAD.t); ctx.lineTo(todX,H-PAD.b); ctx.stroke(); ctx.setLineDash([]);
+  ctx.fillStyle='#555'; ctx.font='bold 9px Arial'; ctx.textAlign='center';
+  ctx.fillText('Hoy',todX,PAD.t+10);
+
+  // Axis labels
+  ctx.fillStyle='#888'; ctx.font='9px Arial'; ctx.textAlign='center';
+  ctx.fillText('Sprints →',W/2,H-2);
+  ctx.save(); ctx.translate(10,H/2); ctx.rotate(-Math.PI/2);
+  ctx.fillText('Story Points pendientes',0,0); ctx.restore();
+}
+
+// Build on tab click
+const origTb=window.tb;
+window.tb=function(id,btn){
+  origTb(id,btn);
+  if(id==='scrum') setTimeout(buildScrumComponents,50);
+
+  if(id==='infra2') setTimeout(buildInfra2,50);
+  if(id==='fuentes2') setTimeout(buildFuentes2,50);
+};
+
+
+// ── INFRAESTRUCTURA TÉCNICA (SERVIDOR LOCAL) ─────────────────────────
+const INFRA2_DATA = {
+  a: {title:"A. Dispositivo Inicial — Cliente (Autoservicio Aleyual)", sub:"Lo que necesita la tienda para usar el sistema", rows:[
+    {name:"Dispositivo en caja",val:"PC, laptop o tablet",exp:"Es una app WEB — funciona en cualquier dispositivo con navegador, sin instalar nada.",imp:"No requiere comprar hardware especializado de punto de venta"},
+    {name:"Navegador web",val:"Chrome / Edge / Firefox",exp:"Probado en navegadores modernos actualizados.",imp:"Google Chrome es el más probado"},
+    {name:"Conexión a la red local",val:"Cable Ethernet o WiFi",exp:"El dispositivo de caja se conecta al servidor PC3 dentro de la misma red local (192.168.1.x).",imp:"No depende de internet externo para operar"},
+    {name:"Impresora de recibos",val:"Térmica 58/80mm (opcional)",exp:"No obligatoria para el MVP, mejora la experiencia en caja.",imp:"~$180.000 COP"},
+    {name:"Lector de código de barras",val:"USB tipo pistola (opcional)",exp:"Agiliza la búsqueda de productos en inventario y ventas.",imp:"~$90.000 COP"},
+  ]},
+  b: {title:"B. Servidor Local (PC3) — Dónde vive el sistema en la tienda", sub:"Servidor físico real, dentro de Autoservicio Aleyual", rows:[
+    {name:"Procesador (CPU)",val:"Intel i5-12400 · 6 núcleos",exp:"Sin GPU dedicada. 6 núcleos manejan MySQL + Node.js + Nginx simultáneamente.",imp:"Suficiente para todo el tráfico diario de una tienda"},
+    {name:"RAM del servidor",val:"32 GB DDR4",exp:"Memoria de trabajo para BD + backend + cache sin quedarse sin memoria.",imp:"Sin lentitud en horas pico (mediodía, fin de mes)"},
+    {name:"Almacenamiento",val:"SSD 500GB + HDD 2TB",exp:"SSD para el sistema (arranque rápido). HDD grande para BD y backups históricos.",imp:"2TB equivale a varios años de historial de ventas e imágenes"},
+    {name:"Disponibilidad",val:"24/7 mientras haya luz",exp:"Siempre encendido en la tienda — no se 'duerme' como un plan cloud gratuito.",imp:"Respuesta inmediata en cada venta, sin esperas"},
+    {name:"Protección eléctrica",val:"UPS 850VA · 8 min autonomía",exp:"Si se va la luz, da tiempo para apagar el servidor sin corromper la BD.",imp:"CRÍTICO por la frecuencia de cortes eléctricos en Colombia"},
+  ]},
+  c: {title:"C. Base de Datos — Dónde se guarda la información", sub:"MySQL 8.0, instalado localmente en el PC3", rows:[
+    {name:"Motor de base de datos",val:"MySQL 8.0 (local)",exp:"Sistema relacional robusto, instalado directamente en el servidor de la tienda.",imp:"Los datos NUNCA salen de la tienda — control total y privacidad"},
+    {name:"Ubicación de los datos",val:"100% local, en el HDD 2TB",exp:"A diferencia de servicios cloud, todo vive físicamente en Aleyual.",imp:"No depende de un proveedor externo para acceder a los datos"},
+    {name:"Capacidad estimada",val:"Varios años de operación",exp:"Con 2TB de espacio, la BD crece sin límites prácticos durante toda la vida del negocio.",imp:"No hay que migrar ni pagar por más espacio como en planes cloud"},
+    {name:"Backup",val:"Diario automático (cron 2:00 AM)",exp:"Copia de seguridad programada cada noche en el mismo HDD + respaldo externo.",imp:"Si algo falla, se restaura la información del día anterior"},
+    {name:"Seguridad de acceso",val:"Solo accesible desde localhost",exp:"La BD NUNCA se expone directamente a internet.",imp:"Protección máxima contra accesos externos no autorizados"},
+  ]},
+  d: {title:"D. Red e IP — Cómo se conecta todo en la tienda", sub:"Red local interna — sin dependencia de proveedores cloud", rows:[
+    {name:"IP del servidor",val:"192.168.1.100 (fija)",exp:"Dirección fija dentro de la red local — nunca cambia.",imp:"El equipo siempre sabe dónde encontrar el servidor"},
+    {name:"Puerto HTTP/HTTPS",val:"80 / 443",exp:"Puertos por donde el navegador de caja se comunica con Nginx.",imp:"Acceso simple desde cualquier dispositivo en la red local"},
+    {name:"Puerto API / BD",val:"3000 (Node.js) / 3306 (MySQL)",exp:"Puertos internos, NUNCA expuestos fuera del servidor.",imp:"Máxima seguridad: nadie externo puede tocar la API o la BD"},
+    {name:"WiFi del servidor",val:"Deshabilitado — solo cable",exp:"El servidor siempre conectado por cable para máxima estabilidad.",imp:"Evita caídas de conexión por interferencia o señal débil"},
+    {name:"Firewall",val:"UFW — solo puertos 22/80/443",exp:"Bloquea automáticamente cualquier intento a puertos no autorizados.",imp:"Protección activa 24/7 sin intervención manual"},
+  ]},
+};
+function buildInfra2(){
+  ['a','b','c','d'].forEach(key=>{
+    const d=INFRA2_DATA[key];
+    const el=document.getElementById('infra2-'+key);
+    if(!el) return;
+    el.innerHTML=`<div class="infra2-card">
+      <div class="infra2-card-hdr"><h4>${d.title}</h4><p>${d.sub}</p></div>
+      ${d.rows.map(r=>`<div class="infra2-row">
+        <div class="ir2-top"><span class="ir2-name">${r.name}</span><span class="ir2-val">${r.val}</span></div>
+        <div class="ir2-exp">${r.exp}</div>
+        <div class="ir2-imp">${r.imp}</div>
+      </div>`).join('')}
+    </div>`;
+  });
+}
+
+// ── FUENTES VERIFICADAS ────────────────────────────────────────────
+const FSRC_DATA = {
+  a: {title:"Salarios — Mercado de desarrolladores Colombia", rows:[
+    {label:"Glassdoor Colombia",url:"https://www.glassdoor.com.mx/Sueldos/colombia-desarrollador-de-software-sueldo-SRCH_IL.0,8_IN47_KO9,34.htm",note:"$3.0M–$6.8M/mes"},
+    {label:"Indeed Colombia",url:"https://co.indeed.com/career/desarrollador-de-software/salaries",note:"~$3.1M/mes promedio"},
+    {label:"tusalario.org",url:"https://tusalario.org/colombia/carrera/funcion-y-salario/desarrolladores-de-software",note:"$3.2M–$17.4M/mes"},
+    {label:"Coderhouse",url:"https://www.coderhouse.com/us/sueldos/sueldo-desarrollador-full-stack-colombia-2025",note:"Full Stack Mid/Senior"},
+  ]},
+  b: {title:"Servicios Cloud — AWS y alternativas (despliegue T7)", rows:[
+    {label:"AWS EC2 Pricing",url:"https://aws.amazon.com/es/ec2/pricing/on-demand/",note:"t3.small: $0.0208 USD/h"},
+    {label:"AWS Calculator",url:"https://calculator.aws/pricing/2/metahtml",note:"Calculadora oficial"},
+    {label:"AWS RDS MySQL",url:"https://aws.amazon.com/es/rds/mysql/pricing/",note:"Free Tier 750h/mes"},
+    {label:"AWS S3",url:"https://aws.amazon.com/es/s3/pricing/",note:"$0.023 USD/GB/mes"},
+    {label:"nic.co — Dominio",url:"https://nic.co/",note:"$89.000 COP/año"},
+    {label:"BanRep — TRM",url:"https://www.banrep.gov.co/es/estadisticas/trm",note:"~$4.200 COP/USD"},
+  ]},
+};
+function buildFuentes2(){
+  ['a','b'].forEach(key=>{
+    const d=FSRC_DATA[key];
+    const el=document.getElementById('fsrc-'+key);
+    if(!el) return;
+    el.innerHTML=`<div class="fsrc-card" style="grid-column:1/-1;">
+      <div class="fsrc-card-hdr"><h4>${d.title}</h4></div>
+      ${d.rows.map(r=>`<div class="fsrc-row">
+        <span class="fsrc-label">${r.label}</span>
+        <a class="fsrc-link" href="${r.url}" target="_blank">${r.url}</a>
+        <span style="font-size:.66rem;color:#888;white-space:nowrap;">${r.note}</span>
+      </div>`).join('')}
+    </div>`;
+  });
+}
+
+</script>
+</body>
+</html>
