@@ -1,0 +1,1363 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Control Store — Scrum</title>
+<style>
+:root{
+  --black:#000; --g10:#1a1a1a; --g20:#333; --g30:#4d4d4d; --g40:#666;
+  --g50:#808080; --g60:#999; --g70:#b3b3b3; --g80:#ccc; --g85:#d9d9d9;
+  --g90:#e6e6e6; --g93:#ededed; --g96:#f5f5f5; --white:#fff;
+}
+*{box-sizing:border-box;}
+body{
+  font-family:'Segoe UI',Arial,sans-serif; margin:0; background:var(--g96); color:var(--g10);
+}
+.wrap{max-width:1300px;margin:0 auto;padding:24px 18px 60px;}
+
+/* NAV */
+.tabs{
+  display:flex;flex-wrap:wrap;gap:18px;position:sticky;top:0;background:var(--white);
+  padding:12px 16px;border-bottom:3px solid var(--black);z-index:50;align-items:flex-start;
+}
+.tab-group{display:flex;flex-wrap:wrap;gap:6px;align-items:center;padding-right:14px;border-right:1px solid var(--g85);}
+.tab-group:last-child{border-right:none;}
+.tab-group-label{font-size:9.5px;font-weight:800;letter-spacing:1px;color:var(--g60);margin-right:4px;width:100%;}
+.tab-btn{
+  background:var(--g93);border:1px solid var(--g70);color:var(--g20);
+  padding:7px 13px;font-size:12px;font-weight:600;border-radius:5px;cursor:pointer;
+  transition:.15s;
+}
+.tab-btn:hover{background:var(--g80);}
+.tab-btn.active{background:var(--black);color:var(--white);border-color:var(--black);}
+
+section{display:none;}
+section.active{display:block;}
+
+/* SUMMARY CARDS */
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-bottom:24px;}
+.kpi-card{background:var(--white);border:1px solid var(--g80);border-radius:8px;padding:16px 18px;border-top:4px solid var(--black);}
+.kpi-card .kpi-label{font-size:11px;color:var(--g50);font-weight:600;text-transform:uppercase;letter-spacing:.5px;}
+.kpi-card .kpi-value{font-size:22px;font-weight:800;color:var(--g10);margin-top:4px;}
+.kpi-card .kpi-note{font-size:10.5px;color:var(--g60);margin-top:4px;}
+.kpi-card.dark{background:var(--g10);border-top-color:var(--white);}
+.kpi-card.dark .kpi-label{color:var(--g70);}
+.kpi-card.dark .kpi-value{color:var(--white);}
+.kpi-card.dark .kpi-note{color:var(--g60);}
+
+/* CATEGORY BLOCK (budget) */
+.cat-block{margin-bottom:22px;border:1px solid var(--g80);border-radius:8px;overflow:hidden;}
+.cat-head{background:var(--black);color:var(--white);padding:10px 16px;font-weight:700;font-size:13px;display:flex;justify-content:space-between;align-items:center;}
+.cat-head .cat-total{font-size:14px;font-weight:800;}
+.member-block{margin-bottom:16px;}
+.member-head{background:var(--g20);color:var(--white);padding:8px 16px;font-weight:700;font-size:12.5px;}
+.total-row td{background:var(--g20)!important;color:var(--white)!important;font-weight:700;}
+.grand-total-row td{background:var(--black)!important;color:var(--white)!important;font-weight:800;font-size:14px;}
+
+/* TITLES */
+.page-title{
+  background:var(--black);color:var(--white);padding:22px 26px;border-radius:6px;
+  margin:22px 0 4px;
+}
+.page-title h1{margin:0;font-size:22px;letter-spacing:.3px;}
+.page-sub{
+  background:var(--g30);color:var(--white);padding:10px 26px;font-size:13px;border-radius:0 0 6px 6px;
+  margin-bottom:22px;
+}
+
+/* GENERIC TABLE */
+table{width:100%;border-collapse:collapse;font-size:13px;background:var(--white);}
+th,td{border:1px solid var(--g80);padding:8px 10px;text-align:left;vertical-align:middle;}
+th{background:var(--black);color:var(--white);font-weight:600;font-size:12px;text-align:center;}
+tr:nth-child(even) td{background:var(--g96);}
+.tbl-wrap{overflow-x:auto;border:1px solid var(--g80);border-radius:6px;margin-bottom:26px;}
+
+/* EPICS CARDS */
+.epic-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;margin-bottom:30px;}
+.epic-card{
+  background:var(--white);border:1px solid var(--g80);border-left:6px solid var(--black);
+  border-radius:6px;padding:16px;
+}
+.epic-card .id{font-weight:800;font-size:13px;color:var(--g30);letter-spacing:.5px;}
+.epic-card h3{margin:4px 0 8px;font-size:16px;}
+.epic-card p{margin:0 0 8px;font-size:12.5px;color:var(--g30);line-height:1.5;}
+.epic-card .meta{display:flex;gap:6px;flex-wrap:wrap;font-size:11px;}
+.badge{background:var(--g93);border:1px solid var(--g70);padding:3px 9px;border-radius:20px;color:var(--g20);}
+.badge.dark{background:var(--g20);color:var(--white);border-color:var(--g20);}
+.check-row{display:flex;align-items:center;gap:8px;margin-top:10px;font-size:12px;}
+
+/* TEAM CARDS */
+.team-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;margin-bottom:26px;}
+.team-card{background:var(--white);border:1px solid var(--g80);border-radius:8px;padding:16px;text-align:center;}
+.avatar{
+  width:56px;height:56px;border-radius:50%;background:var(--g20);color:var(--white);
+  display:flex;align-items:center;justify-content:center;font-weight:700;font-size:18px;margin:0 auto 10px;
+}
+.team-card h4{margin:0 0 2px;font-size:15px;}
+.team-card .role{font-size:11.5px;color:var(--g50);margin-bottom:8px;}
+.team-card .stack{font-size:11px;color:var(--g40);margin-bottom:10px;}
+.team-card .info{font-size:11px;color:var(--g30);border-top:1px solid var(--g90);padding-top:8px;text-align:left;}
+.team-card .info div{margin:2px 0;}
+
+/* CHECKBOX */
+input[type=checkbox]{width:18px;height:18px;accent-color:#1a1a1a;cursor:pointer;}
+.done td, td.done{text-decoration:line-through;color:var(--g60)!important;font-style:italic;}
+tr.done-row td{background:var(--g20)!important;color:var(--white)!important;}
+tr.done-row td input{accent-color:var(--white);}
+
+/* GANTT */
+.sprint-block{margin-bottom:22px;border:1px solid var(--g80);border-radius:6px;overflow:hidden;}
+.sprint-head{background:var(--g10);color:var(--white);padding:10px 16px;font-weight:700;font-size:14px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px;}
+.sprint-head small{font-weight:400;font-size:11.5px;color:var(--g80);}
+.sprint-goal{background:var(--g93);padding:8px 16px;font-size:12px;font-style:italic;color:var(--g30);border-bottom:1px solid var(--g80);}
+.gantt-table{font-size:11px;}
+.gantt-table th{font-size:9.5px;padding:5px 3px;white-space:pre-line;}
+.gantt-table td{padding:5px 6px;white-space:nowrap;}
+.gantt-table td.desc{white-space:normal;min-width:220px;}
+.gantt-cell{width:16px;height:16px;display:inline-block;}
+.bar{background:var(--g30);}
+.bar-epic{background:var(--black);}
+.bar-cer{background:var(--g50);}
+.bar-hito{background:var(--black);}
+.type-tag{font-size:9px;padding:2px 6px;border-radius:3px;font-weight:700;color:var(--white);}
+.tag-epica{background:var(--black);}
+.tag-rf{background:var(--g20);}
+.tag-sub{background:var(--g85);color:var(--g10);}
+.tag-tarea{background:var(--g70);color:var(--g10);}
+.tag-cer{background:var(--g50);}
+.tag-hito{background:var(--black);}
+
+/* KANBAN */
+.kanban-wrap{overflow-x:auto;}
+.kanban{display:grid;grid-template-columns:repeat(5,minmax(190px,1fr));gap:10px;min-width:980px;}
+.kanban-col{background:var(--white);border:1px solid var(--g80);border-radius:8px;overflow:hidden;}
+.kanban-col-head{padding:10px;text-align:center;font-weight:700;color:var(--white);font-size:12px;}
+.kc-pb{background:var(--g50);}
+.kc-sb{background:var(--g40);}
+.kc-prog{background:var(--g30);}
+.kc-rev{background:var(--g20);}
+.kc-done{background:var(--g10);}
+.kanban-card{
+  background:var(--g96);border:1px solid var(--g85);border-radius:5px;margin:8px;padding:8px 10px;font-size:11.5px;
+}
+.kanban-card .kc-id{font-weight:800;color:var(--g20);font-size:11px;}
+.kanban-card .kc-resp{font-size:10px;color:var(--g50);margin-top:4px;}
+
+/* CONTRACT */
+.contract-box{background:var(--white);border:1px solid var(--g80);border-radius:8px;padding:30px 36px;line-height:1.7;font-size:13.5px;}
+.contract-box h2{font-size:14px;background:var(--g20);color:var(--white);padding:8px 14px;border-radius:4px;margin:24px 0 10px;}
+.contract-box p{margin:0 0 14px;text-align:justify;}
+.contract-box ul{margin:0 0 14px 0;padding-left:22px;}
+.contract-box li{margin-bottom:6px;}
+.signature{margin-top:36px;}
+.sig-line{border-top:1px solid var(--g30);width:300px;margin:30px 0 4px;}
+.sig-name{font-weight:700;font-size:12.5px;}
+.sig-role{font-size:11.5px;color:var(--g50);}
+
+/* PROGRESS */
+.progress-wrap{background:var(--white);border:1px solid var(--g80);border-radius:8px;padding:16px 20px;margin-bottom:22px;}
+.progress-bar-outer{background:var(--g90);height:18px;border-radius:9px;overflow:hidden;margin-top:8px;}
+.progress-bar-inner{background:var(--g20);height:100%;width:0%;transition:.3s;border-radius:9px;}
+.progress-label{font-size:12px;color:var(--g40);margin-top:6px;}
+
+footer{text-align:center;font-size:11px;color:var(--g60);margin-top:40px;padding:14px;border-top:1px solid var(--g85);}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:11px;margin-bottom:14px;color:var(--g40);}
+.legend span{display:inline-flex;align-items:center;gap:5px;}
+.legend i{width:12px;height:12px;display:inline-block;border-radius:2px;}
+</style>
+</head>
+<body>
+
+<div class="tabs" id="tabs">
+  <div class="tab-group">
+    <span class="tab-group-label">PRESUPUESTO</span>
+    <button class="tab-btn active" data-target="t-presupuesto">Presupuesto Real</button>
+    <button class="tab-btn" data-target="t-equipos">Equipos de Cómputo</button>
+    <button class="tab-btn" data-target="t-servidores">Servidores</button>
+    <button class="tab-btn" data-target="t-rrhh">Recursos Humanos</button>
+  </div>
+  <div class="tab-group">
+    <span class="tab-group-label">SCRUM</span>
+    <button class="tab-btn" data-target="t-epicas">Épicas</button>
+    <button class="tab-btn" data-target="t-team">Scrum Team</button>
+    <button class="tab-btn" data-target="t-gantt-mensual">Gantt Mensual</button>
+    <button class="tab-btn" data-target="t-gantt">Gantt Scrum</button>
+    <button class="tab-btn" data-target="t-backlog">Product Backlog</button>
+    <button class="tab-btn" data-target="t-board">Scrum Board</button>
+    <button class="tab-btn" data-target="t-velocity">Velocity</button>
+  </div>
+  <div class="tab-group">
+    <span class="tab-group-label">LEGAL</span>
+    <button class="tab-btn" data-target="t-contrato">Contrato</button>
+  </div>
+</div>
+
+<div class="wrap">
+
+<!-- ================= PRESUPUESTO REAL ================= -->
+<section id="t-presupuesto" class="active">
+  <div class="page-title"><h1>CONTROL STORE — PRESUPUESTO REAL</h1></div>
+  <div class="page-sub">El equipo lo construye · 3 integrantes juniors · 1 Jul – 18 Dic 2026 (116 días hábiles · 5.6 meses) · Stack gratuito</div>
+
+  <div class="kpi-grid" id="kpi-grid"></div>
+
+  <div id="presupuesto-categorias"></div>
+
+  <h3 style="margin-top:30px;">Comparativa de escenarios</h3>
+  <div class="tbl-wrap"><table id="comparativa-table"></table></div>
+
+  <p style="font-size:11.5px;color:var(--g50);margin-top:14px;line-height:1.6;">
+   • Vida útil de los equipos: 5 años (1.825 días) — estándar para laptops de uso intensivo en desarrollo de software.<br>
+   • Depreciación = (Valor del equipo ÷ 1.825 días) × Días hábiles trabajados en el proyecto.<br>
+   • Internet y luz son aportes estimados de cada integrante por trabajar desde casa durante el proyecto (Bogotá).<br>
+   • Cada integrante asume su propia afiliación a salud de forma independiente (no incluida en este presupuesto).<br>
+   • Todos los costos de internet, luz, depreciación y herramientas SÍ se suman al costo total del proyecto.
+  </p>
+</section>
+
+<!-- ================= EQUIPOS DE CÓMPUTO ================= -->
+<section id="t-equipos">
+  <div class="page-title"><h1>CONTROL STORE — EQUIPOS DE CÓMPUTO Y DEPRECIACIÓN</h1></div>
+  <div class="page-sub">3 Laptops — Brayan, David y Stiven · Equipos YA SON PROPIEDAD de cada integrante</div>
+
+  <div class="kpi-grid" id="equipos-kpi"></div>
+
+  <div id="equipos-container"></div>
+
+  <p style="font-size:11.5px;color:var(--g50);margin-top:14px;line-height:1.6;">
+   • Los 3 equipos son propiedad personal de cada integrante — su valor de compra NO se suma al proyecto.<br>
+   • La DEPRECIACIÓN sí se suma — representa el desgaste real del equipo durante las horas dedicadas al proyecto.<br>
+   • Fórmula: Depreciación = (Valor del equipo ÷ 1.825 días de vida útil) × Días hábiles trabajados (116 días).<br>
+   • Fuente de precios de componentes: Alkosto, Éxito y Falabella Colombia — laptops gama media 2025-2026.
+  </p>
+</section>
+
+<!-- ================= SERVIDORES ================= -->
+<section id="t-servidores">
+  <div class="page-title"><h1>CONTROL STORE — SERVIDORES Y ARQUITECTURA CLOUD</h1></div>
+  <div class="page-sub">Sin servidor físico propio · Arquitectura de 3 capas en proveedores cloud (planes verificados jun 2026)</div>
+
+  <h3>Arquitectura — 3 capas</h3>
+  <div class="tbl-wrap"><table id="servidores-table"></table></div>
+
+  <h3>Opcional — Backend siempre activo (recomendado en producción real)</h3>
+  <div class="tbl-wrap"><table id="servidores-opt-table"></table></div>
+
+  <p style="font-size:11.5px;color:var(--g50);margin-top:14px;line-height:1.6;">
+   • Vercel es gratis, pero prohíbe uso comercial en su plan Hobby — por eso se eligió Render.<br>
+   • Supabase sí permite uso comercial gratis — opción correcta para la BD de un negocio real.
+  </p>
+</section>
+
+<!-- ================= RECURSOS HUMANOS ================= -->
+<section id="t-rrhh">
+  <div class="page-title"><h1>CONTROL STORE — RECURSOS HUMANOS</h1></div>
+  <div class="page-sub">Equipo Real · 3 Desarrolladores Full Stack · $1.800.000/mes cada uno · 116 días hábiles</div>
+
+  <div class="tbl-wrap"><table id="rrhh-table"></table></div>
+
+  <p style="font-size:11.5px;color:var(--g50);margin-top:14px;line-height:1.6;">
+   • Contrato: Prestación de Servicios — Art. 34 C.S.T.<br>
+   • Los integrantes asumen su propia afiliación a salud de forma independiente.<br>
+   • Sin cesantías, prima, ni vacaciones pagadas por el contratante.<br>
+   • V/DÍA = Salario mensual ÷ 30 · V/HORA = V/DÍA ÷ 8 horas · SALARIO REAL = V/DÍA × 116 días trabajados.<br>
+   • Período: 1 julio 2026 → 18 diciembre 2026 (116 días hábiles reales, festivos colombianos descontados).
+  </p>
+</section>
+
+<!-- ================= ÉPICAS ================= -->
+<section id="t-epicas">
+  <div class="page-title"><h1>CONTROL STORE — ÉPICAS DEL PRODUCTO</h1></div>
+  <div class="page-sub">Equipo: Brayan Alexander Torres Peña · David Ortegón · Stiven Vargas — Desarrolladores Full Stack</div>
+
+  <div class="progress-wrap">
+    <strong>Progreso general de épicas</strong>
+    <div class="progress-bar-outer"><div class="progress-bar-inner" id="epic-progress-bar"></div></div>
+    <div class="progress-label" id="epic-progress-label">0 / 5 épicas completadas</div>
+  </div>
+
+  <div class="epic-grid" id="epic-grid"></div>
+</section>
+
+<!-- ================= SCRUM TEAM ================= -->
+<section id="t-team">
+  <div class="page-title"><h1>CONTROL STORE — SCRUM TEAM</h1></div>
+  <div class="page-sub">Roles, responsabilidades, seguridad social y servicios personales del equipo</div>
+
+  <div class="team-grid" id="team-grid"></div>
+
+  <h3 style="margin-top:30px;">Servicios personales mensuales por integrante (estimado · trabajo desde casa)</h3>
+  <div class="tbl-wrap">
+    <table id="services-table"></table>
+  </div>
+
+  <h3>Ceremonias Scrum — Control Store</h3>
+  <div class="tbl-wrap">
+    <table id="ceremonias-table"></table>
+  </div>
+</section>
+
+<!-- ================= GANTT MENSUAL (con reuniones) ================= -->
+<section id="t-gantt-mensual">
+  <div class="page-title"><h1>CONTROL STORE — DIAGRAMA DE GANTT MENSUAL</h1></div>
+  <div class="page-sub">1 Jul 2026 → 18 Dic 2026 · 116 días hábiles · Distribución real e individual por mes, con reuniones de cierre</div>
+
+  <div class="legend">
+    <span><i style="background:#000"></i>Hito (Kickoff / Entrega Final)</span>
+    <span><i style="background:#333"></i>Actividad de desarrollo (BT / DO / SV)</span>
+    <span><i style="background:#808080"></i>Reunión — Sprint Review + Retrospectiva + Cliente</span>
+  </div>
+
+  <div class="tbl-wrap">
+    <table class="gantt-table" id="gantt-mensual-table"></table>
+  </div>
+</section>
+
+<!-- ================= GANTT SCRUM ================= -->
+<section id="t-gantt">
+  <div class="page-title"><h1>CONTROL STORE — DIAGRAMA DE GANTT SCRUM</h1></div>
+  <div class="page-sub">Sprints por Requisitos Funcionales (RF01–RF30) · Marca ✓ cuando un ítem esté Hecho</div>
+
+  <div class="progress-wrap">
+    <strong>Progreso general del proyecto</strong>
+    <div class="progress-bar-outer"><div class="progress-bar-inner" id="gantt-progress-bar"></div></div>
+    <div class="progress-label" id="gantt-progress-label">0 / 0 ítems completados</div>
+  </div>
+
+  <div class="legend">
+    <span><i style="background:#000"></i>Épica</span>
+    <span><i style="background:#333"></i>Requisito Funcional (RF)</span>
+    <span><i style="background:#d9d9d9"></i>Sub-requisito INCLUDE/EXTEND</span>
+    <span><i style="background:#808080"></i>Ceremonia Scrum</span>
+    <span><i style="background:#b3b3b3"></i>Tarea de integración</span>
+  </div>
+
+  <div id="gantt-container"></div>
+</section>
+
+<!-- ================= PRODUCT BACKLOG ================= -->
+<section id="t-backlog">
+  <div class="page-title"><h1>CONTROL STORE — PRODUCT BACKLOG</h1></div>
+  <div class="page-sub">RF01–RF30 + Sub-requisitos INCLUDE/EXTEND · Fuente: SRS v0300 · IEEE Std 830-1998</div>
+
+  <div class="progress-wrap">
+    <strong>Progreso del Product Backlog</strong>
+    <div class="progress-bar-outer"><div class="progress-bar-inner" id="backlog-progress-bar"></div></div>
+    <div class="progress-label" id="backlog-progress-label">0 / 0 ítems completados</div>
+  </div>
+
+  <div class="tbl-wrap">
+    <table id="backlog-table"></table>
+  </div>
+</section>
+
+<!-- ================= SCRUM BOARD ================= -->
+<section id="t-board">
+  <div class="page-title"><h1>CONTROL STORE — SCRUM BOARD (KANBAN)</h1></div>
+  <div class="page-sub">Tablero de estado por ítem · Sprint activo: Sprint 1</div>
+  <div class="kanban-wrap">
+    <div class="kanban" id="kanban-board"></div>
+  </div>
+</section>
+
+<!-- ================= VELOCITY ================= -->
+<section id="t-velocity">
+  <div class="page-title"><h1>CONTROL STORE — VELOCITY &amp; BURNDOWN</h1></div>
+  <div class="page-sub">Story Points por Sprint · Total planificado: 177 SP</div>
+
+  <h3>Velocity por Sprint</h3>
+  <div class="tbl-wrap"><table id="velocity-table"></table></div>
+
+  <h3>Burndown Chart — Story Points restantes</h3>
+  <div class="tbl-wrap"><table id="burndown-table"></table></div>
+</section>
+
+<!-- ================= CONTRATO ================= -->
+<section id="t-contrato">
+  <div class="page-title"><h1>CONTRATO DE PRESTACIÓN DE SERVICIOS DE DESARROLLO DE SOFTWARE</h1></div>
+  <div class="page-sub">Proyecto: Control Store · Entre Autoservicio Ayuelal y el Equipo de Desarrollo SENA</div>
+
+  <div class="contract-box">
+    <p>Entre los suscritos, <strong>HUMBERTO MORENO</strong>, mayor de edad, identificado como se indica en sus
+    documentos personales, obrando en calidad de <strong>PROPIETARIO</strong> del establecimiento de comercio
+    <strong>AUTOSERVICIO AYUELAL</strong>, ubicado en la Calle 48 sur #87-6, Barrio Las Margaritas, Bogotá, D.C.,
+    quien para efectos del presente contrato se denominará <strong>EL CLIENTE</strong>; y de otra parte, el
+    <strong>EQUIPO DE DESARROLLO DE SOFTWARE</strong> conformado por <strong>Brayan Alexander Torres Peña</strong>,
+    <strong>David Ortegón</strong> y <strong>Stiven Vargas</strong>, todos en calidad de Desarrolladores Full Stack
+    y aprendices del programa Tecnología en Análisis y Desarrollo de Software (ADSO) del Servicio Nacional de
+    Aprendizaje — SENA, quienes para efectos del presente contrato se denominarán <strong>EL EQUIPO DE DESARROLLO</strong>,
+    se acuerda celebrar el presente contrato, el cual se regirá por las siguientes cláusulas:</p>
+
+    <h2>CLÁUSULA PRIMERA — OBJETO DEL CONTRATO</h2>
+    <p>EL EQUIPO DE DESARROLLO se compromete a diseñar, desarrollar, implementar y entregar a EL CLIENTE el sistema
+    de información web denominado <strong>CONTROL STORE</strong>, conforme a la Especificación de Requisitos de
+    Software (SRS) versión 0300 del 21/06/2026, el cual comprende los módulos de Gestión de Usuarios, Gestión de
+    Inventario, Gestión de Ventas y Caja, Gestión de Domicilios mediante chatbot de WhatsApp Business, y Reportes
+    gráficos e impresos.</p>
+
+    <h2>CLÁUSULA SEGUNDA — METODOLOGÍA DE TRABAJO</h2>
+    <p>El desarrollo del sistema se realizará bajo la metodología ágil <strong>SCRUM</strong>, organizada en 6 Sprints
+    de aproximadamente 3 semanas cada uno (a excepción del Sprint final de cierre). Al término de cada Sprint se
+    realizará una reunión de Sprint Review con EL CLIENTE para presentar el incremento funcional desarrollado y
+    recoger su retroalimentación, la cual será incorporada en los siguientes ciclos de desarrollo.</p>
+
+    <h2>CLÁUSULA TERCERA — PLAZO DE EJECUCIÓN</h2>
+    <p>El presente contrato tendrá una duración de <strong>SEIS (6) MESES CALENDARIO</strong>, comprendidos entre el
+    1 de julio de 2026 y el 18 de diciembre de 2026, fecha en la cual se realizará la entrega final del sistema, su
+    documentación técnica y de usuario, y el cierre formal del proyecto.</p>
+
+    <h2>CLÁUSULA CUARTA — OBLIGACIONES DE EL EQUIPO DE DESARROLLO</h2>
+    <ul>
+      <li>Desarrollar el sistema conforme a los requisitos funcionales y no funcionales descritos en el documento SRS.</li>
+      <li>Cumplir con el cronograma de Sprints definido y comunicar oportunamente cualquier desviación del mismo.</li>
+      <li>Realizar las reuniones de Sprint Review y recoger la retroalimentación de EL CLIENTE en cada una de ellas.</li>
+      <li>Entregar el código fuente, la documentación técnica (ISO/IEC 25010) y el manual de usuario al finalizar el proyecto.</li>
+      <li>Garantizar la confidencialidad de la información del negocio (inventario, ventas, clientes) a la que tenga acceso.</li>
+      <li>Realizar la capacitación necesaria a EL CLIENTE y a su personal para el uso correcto del sistema entregado.</li>
+    </ul>
+
+    <h2>CLÁUSULA QUINTA — OBLIGACIONES DE EL CLIENTE</h2>
+    <ul>
+      <li>Suministrar oportunamente la información necesaria del negocio para el correcto desarrollo del sistema.</li>
+      <li>Asistir a las reuniones de Sprint Review y de validación de requisitos programadas por EL EQUIPO DE DESARROLLO.</li>
+      <li>Proveer acceso a una cuenta de WhatsApp Business activa y aprobada para la integración del chatbot de domicilios.</li>
+      <li>Validar y aprobar formalmente cada incremento funcional entregado al final de cada Sprint.</li>
+      <li>Disponer del computador de facturación y lector de código de barras existentes para las pruebas de integración.</li>
+    </ul>
+
+    <h2>CLÁUSULA SEXTA — VALOR DEL CONTRATO Y FORMA DE PAGO</h2>
+    <p>El presente contrato se desarrolla en el marco de un proyecto formativo del programa Tecnología en Análisis y
+    Desarrollo de Software del SENA, por lo cual <strong>NO genera contraprestación económica directa</strong> de
+    EL CLIENTE hacia EL EQUIPO DE DESARROLLO. El valor estimado del proyecto, calculado para fines académicos y de
+    presupuesto, se detalla en el documento anexo de Presupuesto Real del proyecto.</p>
+
+    <h2>CLÁUSULA SÉPTIMA — PROPIEDAD INTELECTUAL</h2>
+    <p>Una vez finalizado el proyecto y realizada la entrega formal, el código fuente, la base de datos y toda la
+    documentación del sistema CONTROL STORE serán propiedad de EL CLIENTE, quien podrá usarlos, modificarlos y
+    ampliarlos libremente para el funcionamiento de su negocio Autoservicio Ayuelal.</p>
+
+    <h2>CLÁUSULA OCTAVA — CONFIDENCIALIDAD</h2>
+    <p>EL EQUIPO DE DESARROLLO se obliga a mantener estricta confidencialidad sobre la información comercial,
+    financiera y de clientes del Autoservicio Ayuelal a la que tenga acceso durante el desarrollo del proyecto,
+    conforme a la Ley 1581 de 2012 de Protección de Datos Personales de Colombia.</p>
+
+    <h2>CLÁUSULA NOVENA — SUPERVISIÓN ACADÉMICA</h2>
+    <p>El presente proyecto contará con la supervisión y acompañamiento de un <strong>Instructor SENA</strong>,
+    quien actuará como Product Owner delegado, validando el Product Backlog, las prioridades del proyecto y los
+    entregables de cada Sprint.</p>
+
+    <h2>CLÁUSULA DÉCIMA — TERMINACIÓN Y MODIFICACIONES</h2>
+    <p>Cualquier modificación al alcance, plazo o condiciones del presente contrato deberá acordarse por escrito
+    entre las partes. El contrato podrá darse por terminado de mutuo acuerdo o por incumplimiento grave de las
+    obligaciones aquí establecidas por cualquiera de las partes.</p>
+
+    <p style="margin-top:24px;font-style:italic;">Para constancia, se firma el presente contrato en Bogotá, D.C.,
+    a los _____ días del mes de _______ de 2026.</p>
+
+    <div class="signature">
+      <div class="sig-line"></div>
+      <div class="sig-name">HUMBERTO MORENO</div>
+      <div class="sig-role">Propietario — Autoservicio Ayuelal (EL CLIENTE)</div>
+    </div>
+    <div class="signature">
+      <div class="sig-line"></div>
+      <div class="sig-name">BRAYAN ALEXANDER TORRES PEÑA</div>
+      <div class="sig-role">Desarrollador Full Stack — Scrum Master</div>
+    </div>
+    <div class="signature">
+      <div class="sig-line"></div>
+      <div class="sig-name">DAVID ORTEGÓN</div>
+      <div class="sig-role">Desarrollador Full Stack</div>
+    </div>
+    <div class="signature">
+      <div class="sig-line"></div>
+      <div class="sig-name">STIVEN VARGAS</div>
+      <div class="sig-role">Desarrollador Full Stack</div>
+    </div>
+    <div class="signature">
+      <div class="sig-line"></div>
+      <div class="sig-name">INSTRUCTOR SENA</div>
+      <div class="sig-role">Supervisor Académico — Product Owner delegado</div>
+    </div>
+  </div>
+</section>
+
+</div>
+
+<footer>Control Store — Proyecto SENA ADSO · Brayan Alexander Torres Peña · David Ortegón · Stiven Vargas · 2026</footer>
+
+<script>
+// ============== TAB NAVIGATION ==============
+document.querySelectorAll(".tab-btn").forEach(btn=>{
+  btn.addEventListener("click",()=>{
+    document.querySelectorAll(".tab-btn").forEach(b=>b.classList.remove("active"));
+    document.querySelectorAll("section").forEach(s=>s.classList.remove("active"));
+    btn.classList.add("active");
+    document.getElementById(btn.dataset.target).classList.add("active");
+  });
+});
+
+// ============== DATA ==============
+const epicas = [
+  {id:"EP-01",name:"Gestión de Usuarios",desc:"Control de acceso, autenticación y administración de cuentas (ADMIN, Vendedor, Domiciliario)",mod:"SS-001",sprint:"Sprint 1",prio:"Alta"},
+  {id:"EP-02",name:"Gestión de Inventario",desc:"Registro, consulta, edición y control de productos con alertas automáticas de stock y vencimiento",mod:"SS-002",sprint:"Sprint 2",prio:"Alta"},
+  {id:"EP-03",name:"Gestión de Ventas y Caja",desc:"Registro de ventas con múltiples métodos de pago, consulta, anulación y cierre automático de caja",mod:"SS-003",sprint:"Sprint 3",prio:"Alta"},
+  {id:"EP-04",name:"Domicilios – Chatbot WhatsApp",desc:"Integración con WhatsApp Business API: pedidos, asignación de domiciliario y notificaciones",mod:"SS-004",sprint:"Sprint 4",prio:"Alta"},
+  {id:"EP-05",name:"Reportes y Estadísticas",desc:"Reportes gráficos e impresos de ventas, inventario y domicilios exportables en PDF/Excel",mod:"SS-005",sprint:"Sprint 5",prio:"Media"},
+];
+
+const team = [
+  {init:"BT",nombre:"Brayan Alexander Torres Peña",rol:"Scrum Master · Desarrollador Full Stack",stack:"React · Node.js/Django · API REST · Despliegue",eps:"Colpatria EPS",internet:75000,luz:45000},
+  {init:"DO",nombre:"David Ortegón",rol:"Scrum Team · Desarrollador Full Stack",stack:"Backend · PostgreSQL · Seguridad · Documentación ISO",eps:"Colpatria EPS",internet:75000,luz:45000},
+  {init:"SV",nombre:"Stiven Vargas",rol:"Scrum Team · Desarrollador Full Stack",stack:"UI/UX · Figma · App Móvil · Pruebas · SCV",eps:"Colpatria EPS",internet:75000,luz:45000},
+  {init:"PO",nombre:"Instructor SENA",rol:"Product Owner (delegado)",stack:"SENA — Centro de Servicios Financieros",eps:"—",internet:null,luz:null},
+  {init:"HM",nombre:"Humberto Moreno",rol:"Stakeholder / Cliente",stack:"Propietario — Autoservicio Ayuelal",eps:"—",internet:null,luz:null},
+];
+
+const ceremonias = [
+  ["Sprint Planning","Inicio de cada Sprint (cada 3 sem.)","2 horas","BT, DO, SV, Instructor SENA","Seleccionar ítems del Product Backlog, definir el Sprint Goal y crear el Sprint Backlog."],
+  ["Daily Scrum","Cada día hábil","15 minutos","BT, DO, SV","¿Qué hice ayer? ¿Qué haré hoy? ¿Hay impedimentos? Sincronización diaria."],
+  ["Sprint Review","Final de cada Sprint","1 hora","BT, DO, SV, Instructor SENA, Humberto Moreno","Demostrar el incremento funcional y validar criterios de aceptación."],
+  ["Sprint Retrospectiva","Final de cada Sprint (tras Review)","45 minutos","BT, DO, SV","¿Qué salió bien? ¿Qué mejorar? Acciones concretas de mejora continua."],
+  ["Reunión con Cliente","Inicio del proyecto y tras cada Review","30–60 min","BT, DO, SV, Humberto Moreno","Validar requisitos, demostrar avance real y recolectar feedback del propietario."],
+  ["Refinamiento de Backlog","Mitad de cada Sprint","1 hora","BT, DO, SV, Instructor SENA","Revisar, priorizar y estimar ítems del Product Backlog para el siguiente Sprint."],
+];
+
+// Gantt sprints — id used for checkbox persistence
+const sprints = [
+ {name:"SPRINT 1 — Módulo de Usuarios",goal:"EP-01 · RF01–RF07 con autenticación JWT + bcrypt",dates:"01/07/2026 – 17/07/2026",
+  items:[
+   ["epica","EP-01","Gestión de Usuarios","Todos",1],
+   ["rf","RF01","Iniciar sesión (autenticación JWT + roles)","DO",3],
+   ["sub","RF01.1","INCLUDE: Validar credenciales en BD","DO",1],
+   ["sub","RF01.2","EXTEND: Error de credenciales incorrectas","DO",1],
+   ["sub","RF01.3","EXTEND: Bloquear usuario inactivo","DO",1],
+   ["rf","RF02","Cerrar sesión (invalidar token)","BT",1],
+   ["sub","RF02.1","INCLUDE: Validar token de sesión","BT",1],
+   ["rf","RF03","Recuperar contraseña (email, enlace 30 min)","DO",2],
+   ["sub","RF03.1","INCLUDE: Enviar email con enlace","DO",1],
+   ["sub","RF03.2","EXTEND: Error de correo no registrado","DO",1],
+   ["rf","RF04","Registrar usuario (ADMIN crea cuentas + bcrypt)","DO",2],
+   ["sub","RF04.1","INCLUDE: Cifrar contraseña (bcrypt)","DO",1],
+   ["sub","RF04.2","INCLUDE: Validar correo duplicado","DO",1],
+   ["rf","RF05","Editar usuario (log de auditoría)","DO",2],
+   ["sub","RF05.1","INCLUDE: Registrar log de auditoría","DO",1],
+   ["rf","RF06","Actualizar estado usuario (activar/desactivar)","BT",2],
+   ["sub","RF06.1","INCLUDE: Registrar log de auditoría","DO",1],
+   ["sub","RF06.2","EXTEND: Bloquear acceso al desactivar","BT",1],
+   ["rf","RF07","Cambiar contraseña propia (validar actual + bcrypt)","DO",2],
+   ["sub","RF07.1","INCLUDE: Validar contraseña actual","DO",1],
+   ["sub","RF07.2","INCLUDE: Cifrar nueva contraseña (bcrypt)","DO",1],
+   ["cer","REV-S1","Sprint Review Sprint 1 — Demo al Instructor SENA","Todos",0.5],
+   ["cer","RET-S1","Retrospectiva Sprint 1","Todos",0.5],
+   ["cer","CLI-S1","Reunión con Humberto Moreno — Validación S1","Todos",0.5],
+  ]},
+ {name:"SPRINT 2 — Módulo de Inventario",goal:"EP-02 · RF08–RF13: CRUD de productos + alertas automáticas",dates:"20/07/2026 – 07/08/2026",
+  items:[
+   ["epica","EP-02","Gestión de Inventario","Todos",1],
+   ["rf","RF08","Registrar producto (barras, precios, stock, venc.)","BT",3],
+   ["sub","RF08.1","INCLUDE: Validar código de barras","BT",1],
+   ["sub","RF08.2","INCLUDE: Guardar en base de datos","DO",1],
+   ["sub","RF08.3","EXTEND: Error de código duplicado","BT",1],
+   ["rf","RF09","Listar productos (paginado, filtros)","BT",2],
+   ["sub","RF09.1","INCLUDE: Consultar BD de inventario","DO",1],
+   ["rf","RF10","Consultar producto (detalle + historial)","BT",2],
+   ["sub","RF10.1","INCLUDE: Consultar BD de inventario","DO",1],
+   ["sub","RF10.2","INCLUDE: Mostrar historial de movimientos","DO",1],
+   ["rf","RF11","Editar producto (todos los campos + log auditoría)","BT",2],
+   ["sub","RF11.1","INCLUDE: Guardar cambios en BD","DO",1],
+   ["sub","RF11.2","INCLUDE: Registrar log de auditoría","DO",1],
+   ["sub","RF11.3","EXTEND: Alerta de stock bajo al editar","BT",1],
+   ["rf","RF12","Eliminar producto (confirmación + log)","BT",2],
+   ["sub","RF12.1","INCLUDE: Confirmar eliminación","BT",1],
+   ["sub","RF12.2","INCLUDE: Registrar log de auditoría","DO",1],
+   ["rf","RF13","Alerta de vencimiento y stock mínimo (dashboard)","DO",3],
+   ["sub","RF13.1","INCLUDE: Consultar BD de inventario","DO",1],
+   ["sub","RF13.2","INCLUDE: Notificar vencimiento","DO",1],
+   ["sub","RF13.3","INCLUDE: Notificar stock mínimo","DO",1],
+   ["cer","REV-S2","Sprint Review Sprint 2 — Demo inventario","Todos",0.5],
+   ["cer","RET-S2","Retrospectiva Sprint 2","Todos",0.5],
+   ["cer","CLI-S2","Reunión con cliente — Revisión inventario","Todos",0.5],
+  ]},
+ {name:"SPRINT 3 — Módulo de Ventas y Caja",goal:"EP-03 · RF14–RF18: ventas con múltiples pagos + cierre de caja",dates:"10/08/2026 – 28/08/2026",
+  items:[
+   ["epica","EP-03","Gestión de Ventas y Caja","Todos",1],
+   ["rf","RF14","Registrar venta (barras/búsqueda, total, stock)","BT",3],
+   ["sub","RF14.1","INCLUDE: Calcular total automático","BT",1],
+   ["sub","RF14.2","INCLUDE: Descontar stock en BD","DO",1],
+   ["sub","RF14.3","INCLUDE: Generar comprobante de venta","BT",1],
+   ["sub","RF14.4","EXTEND: Pago QR (Nequi/Daviplata)","BT",1],
+   ["sub","RF14.5","EXTEND: Error de stock insuficiente","DO",1],
+   ["rf","RF15","Listar ventas (filtros fecha/vendedor/pago)","SV",2],
+   ["sub","RF15.1","INCLUDE: Consultar BD de ventas","DO",1],
+   ["rf","RF16","Consultar venta (detalle completo)","SV",2],
+   ["sub","RF16.1","INCLUDE: Consultar BD de ventas","DO",1],
+   ["rf","RF17","Anular venta (solo ADMIN, revertir stock)","DO",2],
+   ["sub","RF17.1","EXTEND: Confirmar y registrar motivo","DO",1],
+   ["sub","RF17.2","INCLUDE: Revertir stock en BD","DO",1],
+   ["sub","RF17.3","INCLUDE: Registrar log de auditoría","DO",1],
+   ["rf","RF18","Cierre de caja (totales x método + comprobante)","BT",3],
+   ["sub","RF18.1","INCLUDE: Consultar ventas del día","DO",1],
+   ["sub","RF18.2","INCLUDE: Calcular totales por método","DO",1],
+   ["sub","RF18.3","INCLUDE: Generar comprobante de cierre","BT",1],
+   ["cer","REV-S3","Sprint Review Sprint 3 — Demo ventas + caja","Todos",0.5],
+   ["cer","RET-S3","Retrospectiva Sprint 3","Todos",0.5],
+   ["cer","CLI-S3","Reunión con cliente — Validación ventas","Todos",0.5],
+  ]},
+ {name:"SPRINT 4 — Domicilios / Chatbot WhatsApp",goal:"EP-04 · RF19–RF25: chatbot WhatsApp + pedidos + notificaciones",dates:"31/08/2026 – 18/09/2026",
+  items:[
+   ["epica","EP-04","Domicilios – Chatbot WhatsApp Business","Todos",1],
+   ["rf","RF19","Iniciar pedido vía chatbot (menú, bienvenida)","DO",3],
+   ["sub","RF19.1","EXTEND: Mensaje fuera de horario","DO",1],
+   ["sub","RF19.2","EXTEND: Opción inválida — volver al menú","DO",1],
+   ["rf","RF20","Consultar catálogo vía chatbot","BT",2],
+   ["sub","RF20.1","INCLUDE: Consultar BD de inventario","DO",1],
+   ["sub","RF20.2","INCLUDE: Validar stock de productos","DO",1],
+   ["rf","RF21","Confirmar y enviar pedido (resumen, total)","BT",2],
+   ["sub","RF21.1","INCLUDE: Mostrar resumen y total","BT",1],
+   ["sub","RF21.2","EXTEND: Producto sin stock — ajustar pedido","DO",1],
+   ["sub","RF21.3","EXTEND: Timeout sin confirmar — cancelar","DO",1],
+   ["rf","RF22","Registrar pedido en sistema (Pendiente)","DO",2],
+   ["sub","RF22.1","INCLUDE: Guardar pedido en BD","DO",1],
+   ["sub","RF22.2","INCLUDE: Estado inicial Pendiente","DO",1],
+   ["rf","RF23","Asignar domiciliario al pedido","BT",2],
+   ["sub","RF23.1","INCLUDE: Notificar al Admin nuevo pedido","BT",1],
+   ["sub","RF23.2","INCLUDE: Cambiar estado a Alistando","DO",1],
+   ["sub","RF23.3","EXTEND: Notificar al domiciliario","DO",1],
+   ["rf","RF24","Actualizar estado pedido (En camino → Entregado)","SV",2],
+   ["sub","RF24.1","EXTEND: Sin domiciliarios disponibles","DO",1],
+   ["sub","RF24.2","INCLUDE: Registrar marca de tiempo","DO",1],
+   ["sub","RF24.3","INCLUDE: Guardar estado en BD","DO",1],
+   ["rf","RF25","Notificar estado del pedido al cliente (WA)","DO",2],
+   ["sub","RF25.1","EXTEND: Marcar No Entregado","DO",1],
+   ["sub","RF25.2","EXTEND: Enviar mensaje por WhatsApp","DO",1],
+   ["cer","REV-S4","Sprint Review Sprint 4 — Demo chatbot","Todos",0.5],
+   ["cer","RET-S4","Retrospectiva Sprint 4","Todos",0.5],
+   ["cer","CLI-S4","Reunión con cliente — Prueba real chatbot","Todos",0.5],
+  ]},
+ {name:"SPRINT 5 — Módulo de Reportes",goal:"EP-05 · RF26–RF30: reportes gráficos e impresos PDF/Excel",dates:"21/09/2026 – 09/10/2026",
+  items:[
+   ["epica","EP-05","Reportes y Estadísticas","Todos",1],
+   ["rf","RF26","Reporte gráfico de ventas (barras/líneas)","SV",3],
+   ["sub","RF26.1","INCLUDE: Consultar BD de ventas","DO",1],
+   ["sub","RF26.2","INCLUDE: Generar gráfico","SV",1],
+   ["rf","RF27","Reporte impreso ventas (PDF/Excel)","SV",2],
+   ["sub","RF27.1","EXTEND: Exportar a PDF/Excel","DO",1],
+   ["rf","RF28","Reporte gráfico inventario","SV",2],
+   ["sub","RF28.1","INCLUDE: Consultar BD de inventario","DO",1],
+   ["sub","RF28.2","INCLUDE: Generar gráfico del inventario","SV",1],
+   ["rf","RF29","Reporte impreso productos (PDF/Excel)","SV",2],
+   ["sub","RF29.1","EXTEND: Exportar a PDF/Excel","DO",1],
+   ["rf","RF30","Reporte de domicilios (estados, tiempos)","SV",3],
+   ["sub","RF30.1","INCLUDE: Consultar BD de domicilios","DO",1],
+   ["sub","RF30.2","EXTEND: Enviar estado de pedido en reporte","DO",1],
+   ["cer","REV-S5","Sprint Review Sprint 5 — Demo reportes","Todos",0.5],
+   ["cer","RET-S5","Retrospectiva Sprint 5","Todos",0.5],
+   ["cer","CLI-S5","Reunión final con cliente — Validación integral","Todos",0.5],
+  ]},
+ {name:"SPRINT 6 — Integración, Pruebas y Despliegue",goal:"Sistema integrado, desplegado, documentado y entregado",dates:"12/10/2026 – 18/12/2026",
+  items:[
+   ["tarea","T-6.1","Pruebas de integración completas","SV",10],
+   ["tarea","T-6.2","Pruebas de seguridad + auditoría log","DO",8],
+   ["tarea","T-6.3","Despliegue Render/Supabase","BT",5],
+   ["tarea","T-6.4","Configuración dominio .com.co + HTTPS","BT",3],
+   ["tarea","T-6.5","Configuración WhatsApp Business API en producción","DO",4],
+   ["tarea","T-6.6","Documentación técnica ISO/IEC 25010","DO",6],
+   ["tarea","T-6.7","Manual de usuario + manual técnico","SV",5],
+   ["tarea","T-6.8","Pruebas de aceptación con el cliente","Todos",3],
+   ["tarea","T-6.9","Capacitación al cliente y empleados","Todos",2],
+   ["tarea","T-6.10","Preparación entregable final SENA","Todos",3],
+   ["cer","REV-FIN","Sprint Review Final — Sistema completo","Todos",0.5],
+   ["cer","RET-FIN","Retrospectiva Final del Proyecto","Todos",0.5],
+   ["hito","HITO-FIN","ENTREGA FINAL — Control Store v1.0 · 18 Dic 2026","Todos",1],
+  ]},
+];
+
+// Product backlog (id, epic, sprint, desc, type, criteria, actors, sp, prio)
+const backlog = [
+ ["RF01","EP-01","Sprint 1","Iniciar sesión — autenticación JWT con roles ADMIN/VENDEDOR/DOMICILIARIO","RF","Login exitoso redirige al dashboard del rol; credenciales incorrectas muestran error; usuario inactivo bloqueado","ADMIN, Vendedor, Domiciliario",5,"Alta"],
+ ["RF01.1","EP-01","Sprint 1","INCLUDE: Validar credenciales en BD antes de conceder acceso","Sub-RF","Credenciales correctas → acceso; incorrectas → error","Sistema",2,"Alta"],
+ ["RF01.2","EP-01","Sprint 1","EXTEND: Mostrar error si credenciales son incorrectas","Sub-RF","Mensaje de error claro, sin revelar cuál campo falla","Sistema",1,"Alta"],
+ ["RF01.3","EP-01","Sprint 1","EXTEND: Bloquear usuario inactivo al intentar iniciar sesión","Sub-RF","Mensaje informativo de cuenta inactiva","Sistema",1,"Alta"],
+ ["RF02","EP-01","Sprint 1","Cerrar sesión — invalidar token y redirigir a login","RF","Sesión cerrada; token inválido; sin datos en caché accesibles","ADMIN, Vendedor, Domiciliario",2,"Alta"],
+ ["RF02.1","EP-01","Sprint 1","INCLUDE: Validar e invalidar token de sesión activa al cerrar","Sub-RF","Token invalidado en BD/blacklist","Sistema",1,"Alta"],
+ ["RF03","EP-01","Sprint 1","Recuperar contraseña — enlace al correo con expiración 30 min","RF","Email recibido en <2min; enlace expira en 30min; correo no registrado → mensaje genérico","ADMIN, Vendedor, Domiciliario",3,"Alta"],
+ ["RF03.1","EP-01","Sprint 1","INCLUDE: Enviar email con enlace de restablecimiento (30 min)","Sub-RF","Email enviado con link válido 30 minutos","Sistema",2,"Alta"],
+ ["RF03.2","EP-01","Sprint 1","EXTEND: Error genérico si el correo no está registrado","Sub-RF","No revela si la cuenta existe o no","Sistema",1,"Alta"],
+ ["RF04","EP-01","Sprint 1","Registrar usuario — ADMIN crea cuentas con cifrado bcrypt","RF","Usuario creado con rol asignado; contraseña cifrada; correo duplicado detectado","ADMIN",3,"Alta"],
+ ["RF04.1","EP-01","Sprint 1","INCLUDE: Cifrar contraseña con bcrypt antes de almacenar","Sub-RF","Hash bcrypt visible en BD; nunca plaintext","Sistema",1,"Alta"],
+ ["RF04.2","EP-01","Sprint 1","INCLUDE: Validar que el correo no esté registrado previamente","Sub-RF","Error si correo duplicado","Sistema",1,"Alta"],
+ ["RF05","EP-01","Sprint 1","Editar usuario — actualizar datos + log de auditoría automático","RF","Cambios guardados; log con fecha/hora/usuario que modificó","ADMIN",2,"Alta"],
+ ["RF05.1","EP-01","Sprint 1","INCLUDE: Registrar log de auditoría en cada modificación","Sub-RF","Log con: fecha, hora, usuario, campo modificado","Sistema",1,"Alta"],
+ ["RF06","EP-01","Sprint 1","Actualizar estado usuario — activar/desactivar sin eliminar","RF","Usuario desactivado no puede iniciar sesión; log registrado","ADMIN",2,"Alta"],
+ ["RF06.1","EP-01","Sprint 1","INCLUDE: Registrar cambio de estado en log de auditoría","Sub-RF","Log con estado anterior y nuevo","Sistema",1,"Alta"],
+ ["RF06.2","EP-01","Sprint 1","EXTEND: Bloquear acceso inmediatamente al desactivar","Sub-RF","Sesión activa invalidada inmediatamente","Sistema",2,"Alta"],
+ ["RF07","EP-01","Sprint 1","Cambiar contraseña propia — validar actual + nueva con bcrypt","RF","Contraseña actual correcta; nueva cumple reglas; cifrada con bcrypt","ADMIN, Vendedor, Domiciliario",2,"Alta"],
+ ["RF07.1","EP-01","Sprint 1","INCLUDE: Verificar contraseña actual antes de permitir cambio","Sub-RF","Error si actual incorrecta","Sistema",1,"Alta"],
+ ["RF07.2","EP-01","Sprint 1","INCLUDE: Cifrar nueva contraseña con bcrypt","Sub-RF","Hash bcrypt almacenado","Sistema",1,"Alta"],
+ ["RF08","EP-02","Sprint 2","Registrar producto — todos los campos: barras, precios, stock, venc.","RF","Producto creado con ID único; código barras validado; duplicado detectado","ADMIN, Vendedor",5,"Alta"],
+ ["RF08.1","EP-02","Sprint 2","INCLUDE: Validar código de barras al registrar","Sub-RF","Formato EAN/UPC válido","Sistema",1,"Alta"],
+ ["RF08.2","EP-02","Sprint 2","INCLUDE: Guardar producto en base de datos de inventario","Sub-RF","Registro persistido en PostgreSQL","Sistema",1,"Alta"],
+ ["RF08.3","EP-02","Sprint 2","EXTEND: Error si código de barras ya existe (duplicado)","Sub-RF","Mensaje de error, no se crea duplicado","Sistema",1,"Alta"],
+ ["RF09","EP-02","Sprint 2","Listar productos — paginado, filtros por categoría/nombre/estado","RF","Listado visible; paginación funcional; filtros operativos","ADMIN, Vendedor",3,"Alta"],
+ ["RF09.1","EP-02","Sprint 2","INCLUDE: Consultar BD de inventario para listado de activos","Sub-RF","Solo productos activos en listado principal","Sistema",1,"Alta"],
+ ["RF10","EP-02","Sprint 2","Consultar producto — detalle completo + historial movimientos","RF","Todos los campos visibles; historial de entradas/salidas","ADMIN, Vendedor",3,"Alta"],
+ ["RF10.1","EP-02","Sprint 2","INCLUDE: Consultar BD de inventario para detalle","Sub-RF","Datos completos recuperados","Sistema",1,"Alta"],
+ ["RF10.2","EP-02","Sprint 2","INCLUDE: Mostrar historial de movimientos de stock","Sub-RF","Tabla cronológica de entradas y salidas","Sistema",2,"Alta"],
+ ["RF11","EP-02","Sprint 2","Editar producto — todos los campos + log de auditoría","RF","Cambios guardados; log registrado; alerta si stock<mínimo","ADMIN",3,"Alta"],
+ ["RF11.1","EP-02","Sprint 2","INCLUDE: Guardar cambios del producto en BD","Sub-RF","Datos actualizados en PostgreSQL","Sistema",1,"Alta"],
+ ["RF11.2","EP-02","Sprint 2","INCLUDE: Registrar log de auditoría por cada cambio","Sub-RF","Log con campo, valor anterior, valor nuevo","Sistema",1,"Alta"],
+ ["RF11.3","EP-02","Sprint 2","EXTEND: Alerta de stock si edición deja stock < mínimo","Sub-RF","Alerta visible en dashboard","Sistema",1,"Media"],
+ ["RF12","EP-02","Sprint 2","Eliminar producto — confirmación + log de auditoría","RF","Confirmación antes de eliminar; log con acción registrada","ADMIN",2,"Alta"],
+ ["RF12.1","EP-02","Sprint 2","INCLUDE: Solicitar confirmación antes de eliminar/desactivar","Sub-RF","Modal de confirmación con nombre del producto","Sistema",1,"Alta"],
+ ["RF12.2","EP-02","Sprint 2","INCLUDE: Registrar eliminación en log de auditoría","Sub-RF","Log con fecha, hora, usuario, producto","Sistema",1,"Alta"],
+ ["RF13","EP-02","Sprint 2","Alerta automática vencimiento y stock mínimo en dashboard","RF","Alertas visibles; notificación al ADMIN; verificación en tiempo real","ADMIN",5,"Alta"],
+ ["RF13.1","EP-02","Sprint 2","INCLUDE: Consultar inventario para evaluar condiciones de alerta","Sub-RF","Verificación periódica","Sistema",2,"Alta"],
+ ["RF13.2","EP-02","Sprint 2","INCLUDE: Notificar productos en o próximos a vencimiento","Sub-RF","Badge/notificación visible en dashboard","Sistema",2,"Alta"],
+ ["RF13.3","EP-02","Sprint 2","INCLUDE: Notificar productos con stock ≤ cantidad mínima","Sub-RF","Badge/notificación visible en dashboard","Sistema",2,"Alta"],
+ ["RF14","EP-03","Sprint 3","Registrar venta — barras/búsqueda, total auto, descuento stock, comprobante","RF","Venta guardada; stock descontado; comprobante generado; QR/tarjeta/efectivo aceptados","ADMIN, Vendedor",8,"Alta"],
+ ["RF14.1","EP-03","Sprint 3","INCLUDE: Calcular total automático de la venta","Sub-RF","Total correcto sin intervención manual","Sistema",2,"Alta"],
+ ["RF14.2","EP-03","Sprint 3","INCLUDE: Descontar cantidades vendidas del stock en BD","Sub-RF","Stock actualizado inmediatamente","Sistema",2,"Alta"],
+ ["RF14.3","EP-03","Sprint 3","INCLUDE: Generar comprobante de venta (imprimible)","Sub-RF","PDF/ticket con productos, totales, fecha, método de pago","Sistema",2,"Alta"],
+ ["RF14.4","EP-03","Sprint 3","EXTEND: Aceptar pago con código QR Nequi/Daviplata","Sub-RF","QR generado en pantalla; pago verificado","Sistema",3,"Alta"],
+ ["RF14.5","EP-03","Sprint 3","EXTEND: Error e impedimento si el stock es insuficiente","Sub-RF","Mensaje claro con cantidad disponible vs. requerida","Sistema",1,"Alta"],
+ ["RF15","EP-03","Sprint 3","Listar ventas — paginado, filtros fecha/vendedor/método pago","RF","Historial visible con totales del período","ADMIN, Vendedor",3,"Alta"],
+ ["RF15.1","EP-03","Sprint 3","INCLUDE: Consultar BD de ventas para construir listado","Sub-RF","Datos recuperados según filtros aplicados","Sistema",1,"Alta"],
+ ["RF16","EP-03","Sprint 3","Consultar venta — detalle completo: productos, pagos, fechas","RF","Todos los detalles de la venta visibles","ADMIN, Vendedor",2,"Alta"],
+ ["RF16.1","EP-03","Sprint 3","INCLUDE: Consultar BD de ventas para el detalle","Sub-RF","Detalle completo recuperado","Sistema",1,"Alta"],
+ ["RF17","EP-03","Sprint 3","Anular venta — solo ADMIN, motivo obligatorio, revertir stock","RF","Venta anulada; stock revertido; log con motivo registrado","ADMIN",5,"Alta"],
+ ["RF17.1","EP-03","Sprint 3","EXTEND: Solicitar confirmación y motivo de anulación","Sub-RF","Modal con campo obligatorio de motivo","Sistema",1,"Alta"],
+ ["RF17.2","EP-03","Sprint 3","INCLUDE: Revertir stock en BD a estado pre-venta","Sub-RF","Cantidades restauradas en inventario","Sistema",2,"Alta"],
+ ["RF17.3","EP-03","Sprint 3","INCLUDE: Registrar anulación completa en log de auditoría","Sub-RF","Log con: venta ID, usuario, motivo, fecha/hora","Sistema",1,"Alta"],
+ ["RF18","EP-03","Sprint 3","Cierre de caja — totales por método de pago + comprobante","RF","Resumen completo; comprobante PDF imprimible; solo ADMIN","ADMIN",5,"Alta"],
+ ["RF18.1","EP-03","Sprint 3","INCLUDE: Consultar todas las ventas del día en BD","Sub-RF","Ventas del día agrupadas","Sistema",2,"Alta"],
+ ["RF18.2","EP-03","Sprint 3","INCLUDE: Calcular totales por cada método de pago","Sub-RF","Efectivo / Tarjeta / QR totalizados","Sistema",2,"Alta"],
+ ["RF18.3","EP-03","Sprint 3","INCLUDE: Generar comprobante de cierre imprimible","Sub-RF","PDF con resumen de ingresos/egresos del día","Sistema",2,"Alta"],
+ ["RF19","EP-04","Sprint 4","Iniciar pedido vía chatbot WA — menú, bienvenida, horario","RF","Chatbot activo; menú presentado; mensaje fuera de horario funciona","Cliente (WA)",5,"Alta"],
+ ["RF19.1","EP-04","Sprint 4","EXTEND: Informar al cliente si escribe fuera del horario","Sub-RF","Mensaje automático con horario de atención","Chatbot",2,"Alta"],
+ ["RF19.2","EP-04","Sprint 4","EXTEND: Volver al menú si el cliente elige opción inválida","Sub-RF","Menú presentado nuevamente con aclaración","Chatbot",1,"Alta"],
+ ["RF20","EP-04","Sprint 4","Consultar catálogo vía chatbot — nombre, precio, disponibilidad","RF","Lista de productos con stock>0 enviada por WhatsApp en tiempo real","Cliente (WA)",5,"Alta"],
+ ["RF20.1","EP-04","Sprint 4","INCLUDE: Chatbot consulta BD de inventario activo","Sub-RF","Solo productos con stock>0 mostrados","Chatbot",2,"Alta"],
+ ["RF20.2","EP-04","Sprint 4","INCLUDE: Validar disponibilidad de stock de productos","Sub-RF","Productos sin stock excluidos del catálogo","Chatbot",2,"Alta"],
+ ["RF21","EP-04","Sprint 4","Confirmar y enviar pedido — resumen, total, dirección, confirmación","RF","Resumen enviado; cliente confirma; timeout cancela","Cliente (WA)",5,"Alta"],
+ ["RF21.1","EP-04","Sprint 4","INCLUDE: Mostrar resumen del pedido con total antes de confirmar","Sub-RF","Mensaje con lista de productos + total en COP","Chatbot",2,"Alta"],
+ ["RF21.2","EP-04","Sprint 4","EXTEND: Avisar si producto sin stock y permitir ajuste","Sub-RF","Chatbot notifica y ofrece continuar sin ese producto","Chatbot",2,"Alta"],
+ ["RF21.3","EP-04","Sprint 4","EXTEND: Cancelar pedido automáticamente por timeout","Sub-RF","Pedido cancelado tras tiempo definido sin confirmación","Chatbot",2,"Alta"],
+ ["RF22","EP-04","Sprint 4","Registrar pedido en sistema — estado inicial Pendiente","RF","Pedido guardado con todos los datos; estado=Pendiente","Sistema",3,"Alta"],
+ ["RF22.1","EP-04","Sprint 4","INCLUDE: Guardar pedido confirmado en BD","Sub-RF","Todos los campos del pedido persistidos","Sistema",2,"Alta"],
+ ["RF22.2","EP-04","Sprint 4","INCLUDE: Asignar estado inicial Pendiente al guardar","Sub-RF","Estado por defecto='Pendiente'","Sistema",1,"Alta"],
+ ["RF23","EP-04","Sprint 4","Asignar domiciliario — ADMIN asigna, notifica, cambia estado","RF","Domiciliario asignado; estado=Alistando; notificaciones enviadas","ADMIN",3,"Alta"],
+ ["RF23.1","EP-04","Sprint 4","INCLUDE: Notificar al ADMIN la llegada de un nuevo pedido","Sub-RF","Notificación en sistema","Sistema",2,"Alta"],
+ ["RF23.2","EP-04","Sprint 4","INCLUDE: Cambiar estado del pedido a Alistando al asignar","Sub-RF","Estado actualizado en BD y panel","Sistema",1,"Alta"],
+ ["RF23.3","EP-04","Sprint 4","EXTEND: Notificar al domiciliario el pedido asignado","Sub-RF","Notificación al domiciliario con detalles","Sistema",2,"Alta"],
+ ["RF24","EP-04","Sprint 4","Actualizar estado pedido — Domiciliario: En camino → Entregado","RF","Estados disponibles; marca de tiempo en cada cambio","Domiciliario",3,"Alta"],
+ ["RF24.1","EP-04","Sprint 4","EXTEND: Sin domiciliarios disponibles — avisar al ADMIN","Sub-RF","Alerta al ADMIN si no hay domiciliarios libres","Sistema",2,"Alta"],
+ ["RF24.2","EP-04","Sprint 4","INCLUDE: Registrar marca de tiempo de cada cambio de estado","Sub-RF","Timestamp en BD por cada transición","Sistema",1,"Alta"],
+ ["RF24.3","EP-04","Sprint 4","INCLUDE: Persistir nuevo estado en BD","Sub-RF","Estado actualizado en la tabla de pedidos","Sistema",1,"Alta"],
+ ["RF25","EP-04","Sprint 4","Notificar estado pedido al cliente vía WhatsApp","RF","Cliente recibe mensajes por cada cambio de estado","Cliente (WA)",5,"Alta"],
+ ["RF25.1","EP-04","Sprint 4","EXTEND: Marcar pedido como No Entregado cuando corresponda","Sub-RF","Estado 'No Entregado' disponible con observación","Sistema",2,"Alta"],
+ ["RF25.2","EP-04","Sprint 4","EXTEND: Enviar mensaje de estado al cliente por WhatsApp","Sub-RF","Mensaje WA automático en cada cambio de estado","Chatbot",3,"Alta"],
+ ["RF26","EP-05","Sprint 5","Reporte gráfico de ventas — barras/líneas, filtros fecha/vendedor/producto","RF","Gráficos generados; filtros operativos; indicadores día/semana/mes","ADMIN, Vendedor",5,"Media"],
+ ["RF26.1","EP-05","Sprint 5","INCLUDE: Consultar BD de ventas para generar el reporte","Sub-RF","Datos históricos recuperados según filtros","Sistema",2,"Media"],
+ ["RF26.2","EP-05","Sprint 5","INCLUDE: Generar gráficos de barras y líneas de ventas","Sub-RF","Gráficos renderizados","Sistema",2,"Media"],
+ ["RF27","EP-05","Sprint 5","Reporte impreso ventas — PDF/Excel con detalle + totales + ganancia","RF","Exportación exitosa en ambos formatos; datos correctos","ADMIN",3,"Media"],
+ ["RF27.1","EP-05","Sprint 5","EXTEND: Exportar reporte de ventas a PDF o Excel","Sub-RF","Archivo descargable generado correctamente","Sistema",3,"Media"],
+ ["RF28","EP-05","Sprint 5","Reporte gráfico inventario — stock bajo, vencimiento, más vendidos","RF","Gráficos por categorías de alerta visibles","ADMIN, Vendedor",5,"Media"],
+ ["RF28.1","EP-05","Sprint 5","INCLUDE: Consultar BD inventario para el reporte gráfico","Sub-RF","Datos de stock y vencimiento recuperados","Sistema",2,"Media"],
+ ["RF28.2","EP-05","Sprint 5","INCLUDE: Generar gráfico del estado del inventario","Sub-RF","Gráficos de barras/torta del inventario","Sistema",2,"Media"],
+ ["RF29","EP-05","Sprint 5","Reporte impreso productos — PDF/Excel con stock, precios, venc.","RF","Listado completo exportado correctamente","ADMIN",3,"Media"],
+ ["RF29.1","EP-05","Sprint 5","EXTEND: Exportar listado de productos a PDF o Excel","Sub-RF","Archivo generado con todos los campos","Sistema",2,"Media"],
+ ["RF30","EP-05","Sprint 5","Reporte domicilios — pedidos, estados, domiciliario, tiempo promedio","RF","Reporte completo con estadísticas y exportación PDF","ADMIN",5,"Media"],
+ ["RF30.1","EP-05","Sprint 5","INCLUDE: Consultar BD domicilios para el reporte","Sub-RF","Datos históricos de pedidos recuperados","Sistema",2,"Media"],
+ ["RF30.2","EP-05","Sprint 5","EXTEND: Enviar estado de pedido como parte del reporte","Sub-RF","Estado incluido en el reporte exportado","Sistema",2,"Media"],
+];
+
+// Kanban board items
+const kanban = [
+ {ep:"EP-01",id:"RF01",desc:"Iniciar sesión (JWT + roles)",resp:"DO",status:"prog"},
+ {ep:"EP-01",id:"RF01.1",desc:"INCLUDE: Validar credenciales en BD",resp:"DO",status:"prog"},
+ {ep:"EP-01",id:"RF01.2",desc:"EXTEND: Error credenciales incorrectas",resp:"DO",status:"prog"},
+ {ep:"EP-01",id:"RF01.3",desc:"EXTEND: Bloquear usuario inactivo",resp:"DO",status:"pb"},
+ {ep:"EP-01",id:"RF02",desc:"Cerrar sesión (invalidar token)",resp:"BT",status:"sb"},
+ {ep:"EP-01",id:"RF02.1",desc:"INCLUDE: Validar e invalidar token",resp:"BT",status:"sb"},
+ {ep:"EP-01",id:"RF03",desc:"Recuperar contraseña (email 30 min)",resp:"DO",status:"rev"},
+ {ep:"EP-01",id:"RF03.1",desc:"INCLUDE: Enviar email con enlace",resp:"DO",status:"rev"},
+ {ep:"EP-01",id:"RF03.2",desc:"EXTEND: Error correo no registrado",resp:"DO",status:"done"},
+ {ep:"EP-01",id:"RF04",desc:"Registrar usuario (ADMIN + bcrypt)",resp:"DO",status:"done"},
+ {ep:"EP-01",id:"RF04.1",desc:"INCLUDE: Cifrar contraseña bcrypt",resp:"DO",status:"done"},
+ {ep:"EP-01",id:"RF04.2",desc:"INCLUDE: Validar correo duplicado",resp:"DO",status:"done"},
+ {ep:"EP-01",id:"RF05",desc:"Editar usuario + log auditoría",resp:"DO",status:"sb"},
+ {ep:"EP-01",id:"RF05.1",desc:"INCLUDE: Registrar log auditoría",resp:"DO",status:"sb"},
+ {ep:"EP-01",id:"RF06",desc:"Actualizar estado usuario",resp:"BT",status:"sb"},
+ {ep:"EP-01",id:"RF06.1",desc:"INCLUDE: Log cambio de estado",resp:"DO",status:"sb"},
+ {ep:"EP-01",id:"RF06.2",desc:"EXTEND: Bloquear acceso inmediato",resp:"BT",status:"prog"},
+ {ep:"EP-01",id:"RF07",desc:"Cambiar contraseña propia",resp:"DO",status:"rev"},
+ {ep:"EP-01",id:"RF07.1",desc:"INCLUDE: Validar contraseña actual",resp:"DO",status:"rev"},
+ {ep:"EP-01",id:"RF07.2",desc:"INCLUDE: Cifrar nueva con bcrypt",resp:"DO",status:"rev"},
+ {ep:"EP-02",id:"RF08",desc:"Registrar producto (barras, stock, venc.)",resp:"BT",status:"pb"},
+ {ep:"EP-02",id:"RF09",desc:"Listar productos (paginado + filtros)",resp:"BT",status:"pb"},
+ {ep:"EP-02",id:"RF10",desc:"Consultar producto (detalle + historial)",resp:"BT",status:"pb"},
+ {ep:"EP-02",id:"RF11",desc:"Editar producto + log auditoría",resp:"BT",status:"pb"},
+ {ep:"EP-02",id:"RF12",desc:"Eliminar producto + confirmación",resp:"BT",status:"pb"},
+ {ep:"EP-02",id:"RF13",desc:"Alertas vencimiento y stock mínimo",resp:"DO",status:"pb"},
+ {ep:"EP-03",id:"RF14",desc:"Registrar venta (QR/efectivo/tarjeta)",resp:"BT",status:"pb"},
+ {ep:"EP-03",id:"RF15",desc:"Listar ventas (filtros)",resp:"SV",status:"pb"},
+ {ep:"EP-03",id:"RF16",desc:"Consultar detalle de venta",resp:"SV",status:"pb"},
+ {ep:"EP-03",id:"RF17",desc:"Anular venta (solo ADMIN)",resp:"DO",status:"pb"},
+ {ep:"EP-03",id:"RF18",desc:"Cierre de caja diario",resp:"BT",status:"pb"},
+ {ep:"EP-04",id:"RF19",desc:"Iniciar pedido vía chatbot WA",resp:"DO",status:"pb"},
+ {ep:"EP-04",id:"RF20",desc:"Consultar catálogo vía chatbot",resp:"BT",status:"pb"},
+ {ep:"EP-04",id:"RF21",desc:"Confirmar y enviar pedido (chatbot)",resp:"BT",status:"pb"},
+ {ep:"EP-04",id:"RF22",desc:"Registrar pedido en sistema",resp:"DO",status:"pb"},
+ {ep:"EP-04",id:"RF23",desc:"Asignar domiciliario al pedido",resp:"BT",status:"pb"},
+ {ep:"EP-04",id:"RF24",desc:"Actualizar estado pedido",resp:"SV",status:"pb"},
+ {ep:"EP-04",id:"RF25",desc:"Notificar estado al cliente (WA)",resp:"DO",status:"pb"},
+ {ep:"EP-05",id:"RF26",desc:"Reporte gráfico de ventas",resp:"SV",status:"pb"},
+ {ep:"EP-05",id:"RF27",desc:"Reporte impreso ventas PDF/Excel",resp:"SV",status:"pb"},
+ {ep:"EP-05",id:"RF28",desc:"Reporte gráfico inventario",resp:"SV",status:"pb"},
+ {ep:"EP-05",id:"RF29",desc:"Reporte impreso productos",resp:"SV",status:"pb"},
+ {ep:"EP-05",id:"RF30",desc:"Reporte domicilios + exportar",resp:"SV",status:"pb"},
+];
+
+const velocity = [
+ ["Sprint 1","EP-01 Usuarios",35,35,"Autenticación + gestión de usuarios completa"],
+ ["Sprint 2","EP-02 Inventario",38,38,"CRUD inventario + alertas automáticas"],
+ ["Sprint 3","EP-03 Ventas/Caja",38,38,"Registro ventas + cierre de caja"],
+ ["Sprint 4","EP-04 Domicilios",41,41,"Chatbot WhatsApp + pedidos + notificaciones"],
+ ["Sprint 5","EP-05 Reportes",25,25,"Reportes gráficos + exportación PDF/Excel"],
+ ["Sprint 6","Integración+Deploy",0,0,"Sistema desplegado + documentación final"],
+];
+
+const burndown = [
+ ["S1","01-03 Jul",177,177,"Sprint 1","Inicio del proyecto"],
+ ["S2","06-10 Jul",168,168,"Sprint 1","RF01 en progreso"],
+ ["S3","13-17 Jul",159,159,"Sprint 1","RF02-RF03 completados"],
+ ["S4","20-24 Jul",142,142,"Sprint 1→2","Review S1 · Inicio Sprint 2"],
+ ["S5","27-31 Jul",133,133,"Sprint 2","RF08-RF09"],
+ ["S6","03-07 Ago",123,123,"Sprint 2","RF10-RF11"],
+ ["S7","10-14 Ago",104,104,"Sprint 2→3","Review S2 · Inicio Sprint 3"],
+ ["S8","17-21 Ago",95,95,"Sprint 3","RF14-RF15"],
+ ["S9","24-28 Ago",84,84,"Sprint 3","RF16-RF17"],
+ ["S10","31Ago-04Sep",66,66,"Sprint 3→4","Review S3 · Inicio Sprint 4"],
+ ["S11","07-11 Sep",57,57,"Sprint 4","RF19-RF20"],
+ ["S12","14-18 Sep",45,45,"Sprint 4","RF21-RF22"],
+ ["S13","21-25 Sep",25,25,"Sprint 4→5","Review S4 · Inicio Sprint 5"],
+ ["S14","28Sep-02Oct",17,17,"Sprint 5","RF26-RF27"],
+ ["S15","05-09 Oct",7,7,"Sprint 5","RF28-RF29"],
+ ["S16","12-16 Oct",0,0,"Sprint 5→6","Review S5 · Inicio Sprint 6"],
+ ["S17","19Oct-06Nov",0,0,"Sprint 6","Pruebas de integración"],
+ ["S18","09Nov-04Dic",0,0,"Sprint 6","Despliegue + documentación"],
+ ["S19","07-18 Dic",0,0,"Sprint 6","Entrega final 18 Dic 2026"],
+];
+
+// ============== STORAGE ==============
+function loadState(key){ try{return JSON.parse(localStorage.getItem(key))||{};}catch(e){return {};} }
+function saveState(key,obj){ try{localStorage.setItem(key,JSON.stringify(obj));}catch(e){} }
+
+const EP_STATE_KEY="cs_epicas_done", GANTT_STATE_KEY="cs_gantt_done", BL_STATE_KEY="cs_backlog_done";
+let epState = loadState(EP_STATE_KEY);
+let ganttState = loadState(GANTT_STATE_KEY);
+let blState = loadState(BL_STATE_KEY);
+
+// ============== RENDER EPICS ==============
+function renderEpics(){
+  const grid = document.getElementById("epic-grid");
+  grid.innerHTML = "";
+  epicas.forEach(ep=>{
+    const checked = !!epState[ep.id];
+    const card = document.createElement("div");
+    card.className="epic-card";
+    card.innerHTML = `
+      <div class="id">${ep.id}</div>
+      <h3>${ep.name}</h3>
+      <p>${ep.desc}</p>
+      <div class="meta">
+        <span class="badge">${ep.mod}</span>
+        <span class="badge">${ep.sprint}</span>
+        <span class="badge dark">${ep.prio}</span>
+      </div>
+      <div class="check-row">
+        <input type="checkbox" data-id="${ep.id}" class="epic-check" ${checked?"checked":""}>
+        <span>Marcar como completada</span>
+      </div>`;
+    grid.appendChild(card);
+  });
+  document.querySelectorAll(".epic-check").forEach(cb=>{
+    cb.addEventListener("change",e=>{
+      epState[e.target.dataset.id]=e.target.checked;
+      saveState(EP_STATE_KEY,epState);
+      updateEpicProgress();
+    });
+  });
+  updateEpicProgress();
+}
+function updateEpicProgress(){
+  const total=epicas.length;
+  const done=epicas.filter(e=>epState[e.id]).length;
+  document.getElementById("epic-progress-bar").style.width=(done/total*100)+"%";
+  document.getElementById("epic-progress-label").textContent=`${done} / ${total} épicas completadas`;
+}
+
+// ============== RENDER TEAM ==============
+function renderTeam(){
+  const grid = document.getElementById("team-grid");
+  grid.innerHTML = "";
+  team.forEach(p=>{
+    const card = document.createElement("div");
+    card.className="team-card";
+    card.innerHTML = `
+      <div class="avatar">${p.init}</div>
+      <h4>${p.nombre}</h4>
+      <div class="role">${p.rol}</div>
+      <div class="stack">${p.stack}</div>
+      <div class="info">
+        <div><strong>EPS:</strong> ${p.eps}</div>
+      </div>`;
+    grid.appendChild(card);
+  });
+
+  // Services table
+  let html = "<tr><th>Integrante</th><th>Internet / mes</th><th>Luz (aporte) / mes</th><th>Total / mes</th><th>Total 6 meses</th></tr>";
+  let totI=0,totL=0,totM=0,totS=0;
+  team.filter(p=>p.internet).forEach(p=>{
+    const tot = p.internet+p.luz;
+    totI+=p.internet; totL+=p.luz; totM+=tot; totS+=tot*6;
+    html += `<tr><td>${p.nombre}</td><td>$${p.internet.toLocaleString("es-CO")}</td><td>$${p.luz.toLocaleString("es-CO")}</td><td>$${tot.toLocaleString("es-CO")}</td><td>$${(tot*6).toLocaleString("es-CO")}</td></tr>`;
+  });
+  html += `<tr style="font-weight:700;background:#1a1a1a;color:#fff;"><td>TOTAL EQUIPO (3 integrantes)</td><td>$${totI.toLocaleString("es-CO")}</td><td>$${totL.toLocaleString("es-CO")}</td><td>$${totM.toLocaleString("es-CO")}</td><td>$${totS.toLocaleString("es-CO")}</td></tr>`;
+  document.getElementById("services-table").innerHTML = html;
+
+  // Ceremonias table
+  let ch = "<tr><th>Ceremonia</th><th>Frecuencia</th><th>Duración</th><th>Participantes</th><th>Objetivo</th></tr>";
+  ceremonias.forEach(c=>{
+    ch += `<tr><td><strong>${c[0]}</strong></td><td>${c[1]}</td><td style="text-align:center;">${c[2]}</td><td>${c[3]}</td><td>${c[4]}</td></tr>`;
+  });
+  document.getElementById("ceremonias-table").innerHTML = ch;
+}
+
+// ============== RENDER GANTT ==============
+function renderGantt(){
+  const container = document.getElementById("gantt-container");
+  container.innerHTML = "";
+  let globalIdx = 0;
+  let totalItems = 0, doneItems = 0;
+
+  sprints.forEach((sp,spIdx)=>{
+    const block = document.createElement("div");
+    block.className = "sprint-block";
+    let rowsHtml = "";
+    sp.items.forEach((item,i)=>{
+      const [type,id,desc,resp,dias] = item;
+      const key = `${spIdx}-${i}-${id}`;
+      const checked = !!ganttState[key];
+      totalItems++; if(checked) doneItems++;
+      const tagClass = {epica:"tag-epica",rf:"tag-rf",sub:"tag-sub",cer:"tag-cer",tarea:"tag-tarea",hito:"tag-hito"}[type];
+      const tagLabel = {epica:"ÉPICA",rf:"RF",sub:"SUB",cer:"CEREM",tarea:"TAREA",hito:"HITO"}[type];
+      rowsHtml += `<tr class="${checked?'done-row':''}" data-key="${key}">
+        <td style="text-align:center;"><span class="type-tag ${tagClass}">${tagLabel}</span></td>
+        <td style="text-align:center;font-weight:700;">${id}</td>
+        <td class="desc">${desc}</td>
+        <td style="text-align:center;">${resp}</td>
+        <td style="text-align:center;">${dias}</td>
+        <td style="text-align:center;"><input type="checkbox" class="gantt-check" data-key="${key}" ${checked?"checked":""}></td>
+      </tr>`;
+    });
+    block.innerHTML = `
+      <div class="sprint-head"><span>${sp.name}</span><small>${sp.dates}</small></div>
+      <div class="sprint-goal">Sprint Goal: ${sp.goal}</div>
+      <div class="tbl-wrap" style="margin:0;border:none;border-radius:0;">
+        <table class="gantt-table">
+          <tr><th>Tipo</th><th>ID</th><th>Descripción / Tarea</th><th>Resp.</th><th>Días</th><th>✓</th></tr>
+          ${rowsHtml}
+        </table>
+      </div>`;
+    container.appendChild(block);
+  });
+
+  document.querySelectorAll(".gantt-check").forEach(cb=>{
+    cb.addEventListener("change",e=>{
+      const key = e.target.dataset.key;
+      ganttState[key]=e.target.checked;
+      saveState(GANTT_STATE_KEY,ganttState);
+      const row = e.target.closest("tr");
+      row.classList.toggle("done-row",e.target.checked);
+      updateGanttProgress();
+    });
+  });
+  updateGanttProgress();
+}
+function updateGanttProgress(){
+  let total=0,done=0;
+  sprints.forEach((sp,spIdx)=>{
+    sp.items.forEach((item,i)=>{
+      const key = `${spIdx}-${i}-${item[1]}`;
+      total++; if(ganttState[key]) done++;
+    });
+  });
+  document.getElementById("gantt-progress-bar").style.width=(total?done/total*100:0)+"%";
+  document.getElementById("gantt-progress-label").textContent=`${done} / ${total} ítems completados`;
+}
+
+// ============== RENDER BACKLOG ==============
+function renderBacklog(){
+  let html = "<tr><th>Épica</th><th>Sprint</th><th>ID</th><th>Descripción</th><th>Tipo</th><th>Criterios de aceptación</th><th>Actores</th><th>SP</th><th>Prioridad</th><th>✓</th></tr>";
+  backlog.forEach(item=>{
+    const [id,ep,sprint,desc,type,crit,actors,sp,prio] = item;
+    const checked = !!blState[id];
+    const isRF = type==="RF";
+    html += `<tr class="${checked?'done-row':''}" data-key="${id}">
+      <td style="text-align:center;font-weight:700;">${ep}</td>
+      <td style="text-align:center;font-size:11px;">${sprint}</td>
+      <td style="text-align:center;font-weight:${isRF?'700':'400'};">${id}</td>
+      <td>${desc}</td>
+      <td style="text-align:center;"><span class="type-tag ${isRF?'tag-rf':'tag-sub'}">${type}</span></td>
+      <td style="font-size:11.5px;">${crit}</td>
+      <td style="text-align:center;font-size:11px;">${actors}</td>
+      <td style="text-align:center;">${sp}</td>
+      <td style="text-align:center;font-weight:700;">${prio}</td>
+      <td style="text-align:center;"><input type="checkbox" class="backlog-check" data-key="${id}" ${checked?"checked":""}></td>
+    </tr>`;
+  });
+  document.getElementById("backlog-table").innerHTML = html;
+
+  document.querySelectorAll(".backlog-check").forEach(cb=>{
+    cb.addEventListener("change",e=>{
+      const key = e.target.dataset.key;
+      blState[key]=e.target.checked;
+      saveState(BL_STATE_KEY,blState);
+      e.target.closest("tr").classList.toggle("done-row",e.target.checked);
+      updateBacklogProgress();
+    });
+  });
+  updateBacklogProgress();
+}
+function updateBacklogProgress(){
+  const total=backlog.length;
+  const done=backlog.filter(it=>blState[it[0]]).length;
+  document.getElementById("backlog-progress-bar").style.width=(done/total*100)+"%";
+  document.getElementById("backlog-progress-label").textContent=`${done} / ${total} ítems completados`;
+}
+
+// ============== RENDER KANBAN ==============
+function renderKanban(){
+  const cols = [
+    {key:"pb",label:"PRODUCT BACKLOG",cls:"kc-pb"},
+    {key:"sb",label:"SPRINT BACKLOG",cls:"kc-sb"},
+    {key:"prog",label:"EN PROGRESO",cls:"kc-prog"},
+    {key:"rev",label:"EN REVISIÓN",cls:"kc-rev"},
+    {key:"done",label:"HECHO",cls:"kc-done"},
+  ];
+  const board = document.getElementById("kanban-board");
+  board.innerHTML = "";
+  cols.forEach(col=>{
+    const items = kanban.filter(k=>k.status===col.key);
+    const colDiv = document.createElement("div");
+    colDiv.className = "kanban-col";
+    let cardsHtml = items.map(it=>`
+      <div class="kanban-card">
+        <div class="kc-id">${it.ep} · ${it.id}</div>
+        <div>${it.desc}</div>
+        <div class="kc-resp">Responsable: ${it.resp}</div>
+      </div>`).join("");
+    colDiv.innerHTML = `<div class="kanban-col-head ${col.cls}">${col.label} (${items.length})</div>${cardsHtml}`;
+    board.appendChild(colDiv);
+  });
+}
+
+// ============== RENDER VELOCITY ==============
+function renderVelocity(){
+  let html = "<tr><th>Sprint</th><th>Épica</th><th>SP Planificados</th><th>SP Completados</th><th>Velocidad</th><th>Sprint Goal</th></tr>";
+  let totP=0,totC=0;
+  velocity.forEach(v=>{
+    totP+=v[2]; totC+=v[3];
+    const vel = v[2]>0 ? Math.round(v[3]/v[2]*100)+"%" : "—";
+    html += `<tr><td style="font-weight:700;">${v[0]}</td><td>${v[1]}</td><td style="text-align:center;">${v[2]}</td><td style="text-align:center;">${v[3]}</td><td style="text-align:center;">${vel}</td><td>${v[4]}</td></tr>`;
+  });
+  const totVel = totP>0 ? Math.round(totC/totP*100)+"%" : "—";
+  html += `<tr style="font-weight:700;background:#1a1a1a;color:#fff;"><td>TOTAL</td><td></td><td style="text-align:center;">${totP}</td><td style="text-align:center;">${totC}</td><td style="text-align:center;">${totVel}</td><td></td></tr>`;
+  document.getElementById("velocity-table").innerHTML = html;
+
+  let bh = "<tr><th>Semana</th><th>Fecha</th><th>SP Ideales Restantes</th><th>SP Reales Restantes</th><th>Diferencia</th><th>Sprint</th><th>Nota</th></tr>";
+  burndown.forEach(b=>{
+    bh += `<tr><td style="text-align:center;font-weight:700;">${b[0]}</td><td style="text-align:center;">${b[1]}</td><td style="text-align:center;">${b[2]}</td><td style="text-align:center;">${b[3]}</td><td style="text-align:center;">${b[2]-b[3]}</td><td style="text-align:center;">${b[4]}</td><td style="font-size:11px;">${b[5]}</td></tr>`;
+  });
+  document.getElementById("burndown-table").innerHTML = bh;
+}
+
+// ============== BUDGET DATA ==============
+const rrhh = [
+  {nombre:"Brayan Alexander Torres Peña — Desarrollador Full Stack (Scrum Master)",cant:1,salMes:2000000,dias:30,vdia:66667,hdia:8,vhora:8333,diasTrab:116,total:7733372},
+  {nombre:"David Ortegón — Desarrollador Full Stack",cant:1,salMes:2000000,dias:30,vdia:66667,hdia:8,vhora:8333,diasTrab:116,total:7733372},
+  {nombre:"Stiven Vargas — Desarrollador Full Stack",cant:1,salMes:2000000,dias:30,vdia:66667,hdia:8,vhora:8333,diasTrab:116,total:7733372},
+];
+
+const equiposCompu = [
+  {init:"BT",nombre:"Brayan Alexander Torres Peña",rol:"Desarrollador Full Stack — Líder técnico",
+   componentes:[
+     ["Procesador","AMD Ryzen 5 5500U (6C/12T · 2.1–4.0 GHz · laptop)",450000],
+     ["Memoria RAM","16 GB DDR4 3200 MHz (dual channel)",280000],
+     ["Almacenamiento","512 GB SSD NVMe",180000],
+     ["Pantalla","15.6\" FHD IPS 1920×1080",420000],
+     ["Batería + chasis + teclado","Estructura completa del portátil",870000],
+     ["Conectividad","WiFi 6, Bluetooth 5.0, USB-C, HDMI",200000],
+   ], valorMercado:2400000, depreciacion:152548},
+  {init:"DO",nombre:"David Ortegón",rol:"Desarrollador Full Stack — Backend",
+   componentes:[
+     ["Procesador","Intel Core i5-1135G7 (4C/8T · 2.4–4.2 GHz · laptop)",480000],
+     ["Memoria RAM","16 GB DDR4 3200 MHz (dual channel)",280000],
+     ["Almacenamiento","512 GB SSD NVMe",180000],
+     ["Pantalla","15.6\" FHD IPS 1920×1080",420000],
+     ["Batería + chasis + teclado","Estructura completa del portátil",840000],
+     ["Conectividad","WiFi 6, Bluetooth 5.0, USB-C, HDMI",200000],
+   ], valorMercado:2400000, depreciacion:152548},
+  {init:"SV",nombre:"Stiven Vargas",rol:"Desarrollador Full Stack — UI/UX",
+   componentes:[
+     ["Procesador","AMD Ryzen 5 5500U (6C/12T · 2.1–4.0 GHz · laptop)",450000],
+     ["Memoria RAM","16 GB DDR4 3200 MHz (dual channel)",280000],
+     ["Almacenamiento","512 GB SSD NVMe",180000],
+     ["Pantalla","15.6\" FHD IPS 1920×1080 — táctil opcional para diseño",420000],
+     ["Batería + chasis + teclado","Estructura completa del portátil",870000],
+     ["Conectividad","WiFi 6, Bluetooth 5.0, USB-C, HDMI",200000],
+   ], valorMercado:2400000, depreciacion:152548},
+];
+
+const servidores = [
+  ["1","Frontend (React)","Render — Static Site","Free",0,"Sin 'sleep', uso comercial permitido. HTTPS y CDN incluidos."],
+  ["2","Backend (API REST Node.js)","Render — Web Service","Free",0,"Se 'duerme' tras 15 min sin tráfico (despierta en 30-60s)."],
+  ["3","Base de Datos","Supabase — PostgreSQL","Free",0,"500 MB · uso comercial permitido · pausa tras 7 días sin actividad."],
+  ["4","Dominio","nic.co",".com.co",89000,"Registro anual obligatorio."],
+  ["5","Chatbot WhatsApp","Twilio — WhatsApp Business API","Sandbox→Pago",240000,"6 meses calendario = $240.000 total."],
+];
+const servidoresOpt = [
+  ["1","Backend sin 'sleep' 24/7","Render Starter","$7 USD",176400,"Elimina la espera de 30-60s en la primera venta del día."],
+  ["2","Alternativa equivalente","Railway Hobby","$5 USD",126000,"Plan con $5 USD de crédito mensual incluido."],
+];
+
+function fmt(n){ return "$"+Math.round(n).toLocaleString("es-CO"); }
+
+// ============== RENDER PRESUPUESTO ==============
+function renderPresupuesto(){
+  // Totals
+  const rrhhTotal = rrhh.reduce((s,r)=>s+r.total,0);
+  const tecTotal = 329000;
+  const internetTotal = team.filter(p=>p.internet).reduce((s,p)=>s+p.internet*6,0);
+  const luzTotal = team.filter(p=>p.luz).reduce((s,p)=>s+p.luz*6,0);
+  const papeleria = 50000, transporte = 96000, copilot = 180000;
+  const gastosTotal = internetTotal + luzTotal + papeleria + transporte + copilot;
+  const depTotal = equiposCompu.reduce((s,e)=>s+e.depreciacion,0);
+  const subtotalBase = rrhhTotal + tecTotal + gastosTotal + depTotal;
+  const imprevistos = subtotalBase*0.1;
+  const ganancia = subtotalBase*0.15;
+  const costoTotal = subtotalBase + imprevistos + ganancia;
+
+  // KPIs
+  document.getElementById("kpi-grid").innerHTML = `
+    <div class="kpi-card dark"><div class="kpi-label">Precio de venta del proyecto</div><div class="kpi-value">${fmt(costoTotal)}</div><div class="kpi-note">1 Jul – 18 Dic 2026 · 116 días hábiles</div></div>
+    <div class="kpi-card"><div class="kpi-label">Recursos Humanos</div><div class="kpi-value">${fmt(rrhhTotal)}</div><div class="kpi-note">3 desarrolladores × 116 días</div></div>
+    <div class="kpi-card"><div class="kpi-label">Ganancia (15%)</div><div class="kpi-value">${fmt(ganancia)}</div><div class="kpi-note">Margen comercial real de venta</div></div>
+    <div class="kpi-card"><div class="kpi-label">Gastos operativos</div><div class="kpi-value">${fmt(gastosTotal)}</div><div class="kpi-note">Internet + luz + varios</div></div>
+    <div class="kpi-card"><div class="kpi-label">Tecnología + Depreciación</div><div class="kpi-value">${fmt(tecTotal+depTotal)}</div><div class="kpi-note">Hosting, dominio, WA API, equipos</div></div>
+  `;
+
+  let html = "";
+
+  // I. RRHH
+  html += `<div class="cat-block"><div class="cat-head"><span>I. RECURSOS HUMANOS</span><span class="cat-total">${fmt(rrhhTotal)}</span></div>
+  <table><tr><th>Concepto</th><th>Días</th><th>Valor/día</th><th>Total</th><th>Nota</th></tr>`;
+  rrhh.forEach(r=>{
+    html += `<tr><td>${r.nombre} — 116 días hábiles</td><td style="text-align:center;">${r.diasTrab}</td><td style="text-align:center;">${fmt(r.vdia)}</td><td style="text-align:center;font-weight:700;">${fmt(r.total)}</td><td style="font-size:11px;">Honorarios prestación de servicios</td></tr>`;
+  });
+  html += `<tr class="total-row"><td colspan="3">SUBTOTAL RRHH</td><td style="text-align:center;">${fmt(rrhhTotal)}</td><td style="font-size:11px;">$60.000/día × 116 días × 3 personas</td></tr></table></div>`;
+
+  // II. TECNOLOGÍA
+  html += `<div class="cat-block"><div class="cat-head"><span>II. TECNOLOGÍA</span><span class="cat-total">${fmt(tecTotal)}</span></div>
+  <table><tr><th>Concepto</th><th>Periodo</th><th>Costo</th><th>Nota</th></tr>
+  <tr><td>Hosting frontend — Render Static Site</td><td style="text-align:center;">6 meses</td><td style="text-align:center;">GRATIS</td><td style="font-size:11px;">Uso comercial permitido, sin pausa</td></tr>
+  <tr><td>Hosting backend — Render Web Service</td><td style="text-align:center;">6 meses</td><td style="text-align:center;">GRATIS</td><td style="font-size:11px;">Se duerme tras 15 min sin tráfico</td></tr>
+  <tr><td>Base de datos — Supabase PostgreSQL</td><td style="text-align:center;">6 meses</td><td style="text-align:center;">GRATIS</td><td style="font-size:11px;">Uso comercial permitido, 500 MB</td></tr>
+  <tr><td>Repositorio — GitHub Education</td><td style="text-align:center;">6 meses</td><td style="text-align:center;">GRATIS</td><td style="font-size:11px;">Gratis con correo SENA</td></tr>
+  <tr><td>Dominio .com.co — nic.co</td><td style="text-align:center;">1 año</td><td style="text-align:center;">${fmt(89000)}</td><td style="font-size:11px;">Registro y renovación anual</td></tr>
+  <tr><td>WhatsApp Business API — Twilio</td><td style="text-align:center;">6 meses</td><td style="text-align:center;">${fmt(240000)}</td><td style="font-size:11px;">$40.000/mes × 6 meses</td></tr>
+  <tr class="total-row"><td colspan="2">SUBTOTAL TECNOLOGÍA</td><td style="text-align:center;">${fmt(tecTotal)}</td><td style="font-size:11px;">Solo dominio + WhatsApp API</td></tr></table></div>`;
+
+  // III. GASTOS OPERATIVOS (internet + luz per person + others)
+  html += `<div class="cat-block"><div class="cat-head"><span>III. GASTOS OPERATIVOS</span><span class="cat-total">${fmt(gastosTotal)}</span></div>
+  <table><tr><th>Concepto</th><th>Periodo</th><th>Valor/mes</th><th>Total 6m</th></tr>`;
+  team.filter(p=>p.internet).forEach(p=>{
+    html += `<tr><td>Internet — ${p.nombre}</td><td style="text-align:center;">6 meses</td><td style="text-align:center;">${fmt(p.internet)}</td><td style="text-align:center;font-weight:700;">${fmt(p.internet*6)}</td></tr>`;
+  });
+  team.filter(p=>p.luz).forEach(p=>{
+    html += `<tr><td>Luz (aporte) — ${p.nombre}</td><td style="text-align:center;">6 meses</td><td style="text-align:center;">${fmt(p.luz)}</td><td style="text-align:center;font-weight:700;">${fmt(p.luz*6)}</td></tr>`;
+  });
+  html += `<tr><td>Papelería e impresiones SENA</td><td style="text-align:center;">—</td><td style="text-align:center;">—</td><td style="text-align:center;font-weight:700;">${fmt(papeleria)}</td></tr>
+  <tr><td>Transporte a reuniones presenciales</td><td style="text-align:center;">6 meses</td><td style="text-align:center;">${fmt(16000)}</td><td style="text-align:center;font-weight:700;">${fmt(transporte)}</td></tr>
+  <tr><td>GitHub Copilot / ChatGPT (apoyo código)</td><td style="text-align:center;">6 meses</td><td style="text-align:center;">${fmt(30000)}</td><td style="text-align:center;font-weight:700;">${fmt(copilot)}</td></tr>
+  <tr class="total-row"><td colspan="3">SUBTOTAL GASTOS</td><td style="text-align:center;">${fmt(gastosTotal)}</td></tr></table></div>`;
+
+  // IV. DEPRECIACIÓN
+  html += `<div class="cat-block"><div class="cat-head"><span>IV. DEPRECIACIÓN DE EQUIPOS</span><span class="cat-total">${fmt(depTotal)}</span></div>
+  <table><tr><th>Equipo</th><th>Días trabajados</th><th>Total</th><th>Nota</th></tr>`;
+  equiposCompu.forEach(e=>{
+    html += `<tr><td>Laptop ${e.nombre} — $2.400.000 ÷ 1825d × 116d</td><td style="text-align:center;">116 días</td><td style="text-align:center;font-weight:700;">${fmt(e.depreciacion)}</td><td style="font-size:11px;">Vida útil: 5 años (1825 días)</td></tr>`;
+  });
+  html += `<tr class="total-row"><td colspan="2">SUBTOTAL DEPRECIACIÓN</td><td style="text-align:center;">${fmt(depTotal)}</td><td style="font-size:11px;">Desgaste real del equipo propio</td></tr></table></div>`;
+
+  // Final totals
+  html += `<div class="cat-block"><table>
+  <tr><td style="font-weight:700;">SUBTOTAL BASE (RRHH + Tecnología + Gastos + Depreciación)</td><td style="text-align:center;font-weight:700;">${fmt(subtotalBase)}</td></tr>
+  <tr><td style="font-weight:700;">IMPREVISTOS — 10% (equipo propio, riesgo conocido)</td><td style="text-align:center;font-weight:700;">${fmt(imprevistos)}</td></tr>
+  <tr><td style="font-weight:700;">GANANCIA — 15% sobre subtotal base (margen comercial real de venta)</td><td style="text-align:center;font-weight:700;">${fmt(ganancia)}</td></tr>
+  <tr class="grand-total-row"><td>PRECIO DE VENTA DEL PROYECTO — CONTROL STORE (1 Jul – 18 Dic 2026)</td><td style="text-align:center;">${fmt(costoTotal)}</td></tr>
+  </table></div>`;
+
+  document.getElementById("presupuesto-categorias").innerHTML = html;
+
+  // Comparativa
+  const escenarios = [
+    ["A","Tradicional — equipo profesional 20 meses",240772831],
+    ["B","Scrum — equipo profesional 20 meses",180807246],
+    ["C","Scrum — equipo profesional 6 meses MVP",87999124],
+    ["D","Scrum — 3 juniors externos 5 meses",59939090],
+    ["E","CONTROL STORE — equipo real (1 Jul–18 Dic 2026) ←",costoTotal],
+  ];
+  let ch = "<tr><th>Esc.</th><th>Escenario</th><th>Costo total</th><th>% ahorro vs. Trad.</th></tr>";
+  const base = escenarios[0][2];
+  escenarios.forEach(e=>{
+    const ahorro = e[0]==="A" ? 0 : (1-e[2]/base)*100;
+    const isE = e[0]==="E";
+    ch += `<tr ${isE?'class="total-row"':''}><td style="text-align:center;font-weight:700;">${e[0]}</td><td>${e[1]}</td><td style="text-align:center;">${fmt(e[2])}</td><td style="text-align:center;font-weight:700;">${ahorro.toFixed(1)}%</td></tr>`;
+  });
+  document.getElementById("comparativa-table").innerHTML = ch;
+}
+
+// ============== RENDER EQUIPOS DE COMPUTO ==============
+function renderEquipos(){
+  const valorTotal = equiposCompu.reduce((s,e)=>s+e.valorMercado,0);
+  const depTotal = equiposCompu.reduce((s,e)=>s+e.depreciacion,0);
+  document.getElementById("equipos-kpi").innerHTML = `
+    <div class="kpi-card"><div class="kpi-label">Valor de mercado total</div><div class="kpi-value">${fmt(valorTotal)}</div><div class="kpi-note">3 laptops — propiedad de los estudiantes</div></div>
+    <div class="kpi-card dark"><div class="kpi-label">Depreciación total (se suma al proyecto)</div><div class="kpi-value">${fmt(depTotal)}</div><div class="kpi-note">3 equipos × 116 días trabajados</div></div>
+  `;
+  let html = "";
+  equiposCompu.forEach(e=>{
+    html += `<div class="cat-block"><div class="cat-head"><span>${e.init} — ${e.nombre} · ${e.rol}</span><span class="cat-total">${fmt(e.valorMercado)}</span></div>
+    <table><tr><th>#</th><th>Componente</th><th>Especificación</th><th>Valor de mercado</th></tr>`;
+    e.componentes.forEach((c,i)=>{
+      html += `<tr><td style="text-align:center;">${i+1}</td><td>${c[0]}</td><td>${c[1]}</td><td style="text-align:center;">${fmt(c[2])}</td></tr>`;
+    });
+    html += `<tr class="total-row"><td colspan="3">Depreciación por uso — 116 días (vida útil 5 años)</td><td style="text-align:center;">${fmt(e.depreciacion)}</td></tr></table></div>`;
+  });
+  document.getElementById("equipos-container").innerHTML = html;
+}
+
+// ============== RENDER SERVIDORES ==============
+function renderServidores(){
+  let h1 = "<tr><th>#</th><th>Capa</th><th>Proveedor</th><th>Plan</th><th>Costo</th><th>Límites y notas</th></tr>";
+  let totalServ = 0;
+  servidores.forEach(s=>{
+    totalServ += s[4];
+    h1 += `<tr><td style="text-align:center;">${s[0]}</td><td>${s[1]}</td><td>${s[2]}</td><td style="text-align:center;">${s[3]}</td><td style="text-align:center;">${s[4]===0?"$0":fmt(s[4])}</td><td style="font-size:11px;">${s[5]}</td></tr>`;
+  });
+  h1 += `<tr class="total-row"><td colspan="4">TOTAL SERVIDORES — 6 MESES (Jul–Dic 2026)</td><td style="text-align:center;">${fmt(totalServ)}</td><td></td></tr>`;
+  document.getElementById("servidores-table").innerHTML = h1;
+
+  let h2 = "<tr><th>#</th><th>Mejora</th><th>Proveedor</th><th>Costo USD/mes</th><th>Costo COP (6m)</th><th>¿Por qué?</th></tr>";
+  servidoresOpt.forEach(s=>{
+    h2 += `<tr><td style="text-align:center;">${s[0]}</td><td>${s[1]}</td><td>${s[2]}</td><td style="text-align:center;">${s[3]}</td><td style="text-align:center;">${fmt(s[4])}</td><td style="font-size:11px;">${s[5]}</td></tr>`;
+  });
+  document.getElementById("servidores-opt-table").innerHTML = h2;
+}
+
+// ============== RENDER RRHH ==============
+function renderRRHH(){
+  let html = "<tr><th>Item</th><th>Integrante / Rol</th><th>Cant.</th><th>Sal. mensual</th><th>Días/mes</th><th>V/día</th><th>H/día</th><th>V/hora</th><th>Días</th><th>Salario real</th></tr>";
+  let total = 0;
+  rrhh.forEach((r,i)=>{
+    total += r.total;
+    html += `<tr><td style="text-align:center;">${i+1}</td><td>${r.nombre}</td><td style="text-align:center;">${r.cant}</td><td style="text-align:center;">${fmt(r.salMes)}</td><td style="text-align:center;">${r.dias}</td><td style="text-align:center;">${fmt(r.vdia)}</td><td style="text-align:center;">${r.hdia}</td><td style="text-align:center;">${fmt(r.vhora)}</td><td style="text-align:center;">${r.diasTrab}</td><td style="text-align:center;font-weight:700;">${fmt(r.total)}</td></tr>`;
+  });
+  html += `<tr class="grand-total-row"><td colspan="9">TOTAL HONORARIOS — 3 INTEGRANTES × 116 DÍAS HÁBILES</td><td style="text-align:center;">${fmt(total)}</td></tr>`;
+  document.getElementById("rrhh-table").innerHTML = html;
+}
+
+// ============== MONTHLY GANTT DATA (con reuniones) ==============
+// months: 0=Jul,1=Ago,2=Sep,3=Oct,4=Nov,5=Dic
+const ganttMensual = [
+  {tipo:"hito", num:"0.0", actividad:"KICKOFF — Planeación general del proyecto", resp:"Todos", dias:1, mes:0},
+  {tipo:"act",  num:"1.1", actividad:"Análisis de requerimientos, diagrama de procesos y casos de uso", resp:"Brayan T.", dias:21, mes:0},
+  {tipo:"act",  num:"1.2", actividad:"Modelo de datos preliminar (Crows Foot) y diccionario de datos", resp:"David O.", dias:22, mes:0},
+  {tipo:"act",  num:"1.3", actividad:"Wireframes, prototipo en Figma y plan de pruebas", resp:"Stiven V.", dias:22, mes:0},
+  {tipo:"reunion", num:"R.1", actividad:"Reunión Sprint Review + Retrospectiva + Cliente — Cierre Módulo 1 (Jul)", resp:"Todos", dias:0.5, mes:0},
+  {tipo:"act",  num:"2.1", actividad:"Diagrama de clases UML y configuración del repositorio Git", resp:"Brayan T.", dias:19, mes:1},
+  {tipo:"act",  num:"2.2", actividad:"Normalización 3FN, diccionario final y script DDL", resp:"David O.", dias:19, mes:1},
+  {tipo:"act",  num:"2.3", actividad:"Prototipo navegable HTML/CSS y definición de casos de prueba", resp:"Stiven V.", dias:19, mes:1},
+  {tipo:"reunion", num:"R.2", actividad:"Reunión Sprint Review + Retrospectiva + Cliente — Cierre Módulo 2 (Ago)", resp:"Todos", dias:0.5, mes:1},
+  {tipo:"act",  num:"3.1", actividad:"Frontend base en React y configuración de rutas", resp:"Brayan T.", dias:22, mes:2},
+  {tipo:"act",  num:"3.2", actividad:"Script DML, autenticación JWT y seguridad con bcrypt", resp:"David O.", dias:22, mes:2},
+  {tipo:"act",  num:"3.3", actividad:"Diseño de componentes UI y configuración de pruebas unitarias", resp:"Stiven V.", dias:22, mes:2},
+  {tipo:"reunion", num:"R.3", actividad:"Reunión Sprint Review + Retrospectiva + Cliente — Cierre Módulo 3 (Sep)", resp:"Todos", dias:0.5, mes:2},
+  {tipo:"act",  num:"4.1", actividad:"Desarrollo módulo de Inventario (frontend + API)", resp:"Brayan T.", dias:21, mes:3},
+  {tipo:"act",  num:"4.2", actividad:"Desarrollo módulos de Ventas y Caja (backend + BD)", resp:"David O.", dias:21, mes:3},
+  {tipo:"act",  num:"4.3", actividad:"Integración frontend de Ventas/Caja y pruebas funcionales", resp:"Stiven V.", dias:21, mes:3},
+  {tipo:"reunion", num:"R.4", actividad:"Reunión Sprint Review + Retrospectiva + Cliente — Cierre Módulo 4 (Oct)", resp:"Todos", dias:0.5, mes:3},
+  {tipo:"act",  num:"5.1", actividad:"Dashboard administrativo e integración completa de API REST", resp:"Brayan T.", dias:19, mes:4},
+  {tipo:"act",  num:"5.2", actividad:"Módulo de reportes (backend) y optimización de consultas", resp:"David O.", dias:19, mes:4},
+  {tipo:"act",  num:"5.3", actividad:"Módulo de reportes (frontend), pruebas de integración y manual de usuario", resp:"Stiven V.", dias:19, mes:4},
+  {tipo:"reunion", num:"R.5", actividad:"Reunión Sprint Review + Retrospectiva + Cliente — Cierre Módulo 5 (Nov)", resp:"Todos", dias:0.5, mes:4},
+  {tipo:"act",  num:"6.1", actividad:"Despliegue en Render/Vercel y configuración del dominio", resp:"Brayan T.", dias:13, mes:5},
+  {tipo:"act",  num:"6.2", actividad:"Pruebas de seguridad y documentación técnica ISO/IEC 25010", resp:"David O.", dias:13, mes:5},
+  {tipo:"act",  num:"6.3", actividad:"Pruebas finales, manual técnico/usuario y entrega del proyecto", resp:"Stiven V.", dias:13, mes:5},
+  {tipo:"reunion", num:"R.6", actividad:"Reunión Sprint Review Final + Retrospectiva Final + Cliente — Validación integral", resp:"Todos", dias:0.5, mes:5},
+  {tipo:"hito", num:"6.4", actividad:"ENTREGA FINAL Y CIERRE DEL PROYECTO", resp:"Todos", dias:1, mes:5},
+];
+const mesesLabels = ["Jul'26\n(22d)","Ago'26\n(19d)","Sep'26\n(22d)","Oct'26\n(21d)","Nov'26\n(19d)","Dic'26\n(13d)"];
+const mesesDias = [22,19,22,21,19,13];
+
+function renderGanttMensual(){
+  let html = "<tr><th>#</th><th>Actividad</th><th>Resp.</th><th>Días</th>";
+  mesesLabels.forEach(m=> html += `<th style="white-space:pre-line;">${m}</th>`);
+  html += "</tr>";
+
+  ganttMensual.forEach(item=>{
+    const isReunion = item.tipo === "reunion";
+    const isHito = item.tipo === "hito";
+    const rowBg = isReunion ? 'background:var(--g96);' : '';
+    html += `<tr style="${rowBg}"><td style="text-align:center;font-weight:${isReunion||isHito?'700':'400'};">${item.num}</td>`;
+    html += `<td class="desc" style="${isReunion?'font-style:italic;font-weight:600;':''}">${item.actividad}</td>`;
+    html += `<td style="text-align:center;">${item.resp}</td>`;
+    html += `<td style="text-align:center;">${item.dias}</td>`;
+    mesesLabels.forEach((m,idx)=>{
+      let cell = "";
+      if(idx===item.mes){
+        if(isHito) cell = `<span class="type-tag tag-hito">▪</span>`;
+        else if(isReunion) cell = `<span class="type-tag tag-cer">◆</span>`;
+        else cell = `<span class="type-tag tag-rf">█</span>`;
+      }
+      html += `<td style="text-align:center;">${cell}</td>`;
+    });
+    html += "</tr>";
+  });
+
+  // summary row
+  html += `<tr class="total-row"><td colspan="3">Total días hábiles del proyecto</td><td style="text-align:center;">116</td>`;
+  mesesDias.forEach(d=> html += `<td style="text-align:center;">${d}</td>`);
+  html += "</tr>";
+
+  document.getElementById("gantt-mensual-table").innerHTML = html;
+}
+
+// ============== INIT ==============
+renderPresupuesto();
+renderEquipos();
+renderServidores();
+renderRRHH();
+renderGanttMensual();
+renderEpics();
+renderTeam();
+renderGantt();
+renderBacklog();
+renderKanban();
+renderVelocity();
+</script>
+</body>
+</html>
